@@ -12,13 +12,18 @@ declare var window: any;
 @Injectable()
 export class Web3Service {
 
-	public web3: any;
+  public web3: any;
 
-  constructor() { 
-  	this.checkAndInstantiateWeb3();
+  private __initialized = false;
+
+  constructor() {
+    this.checkAndInstantiateWeb3();
   }
 
+
+  
   checkAndInstantiateWeb3 = () => {
+    if (this.__initialized) { return; }
     // Checking if Web3 has been injected by the browser (Mist/MetaMask)
     if (typeof window.web3 !== 'undefined') {
       console.warn(
@@ -35,23 +40,27 @@ export class Web3Service {
         new Web3.providers.HttpProvider(environment.HttpProvider)
       );
     }
+    this.__initialized = true;
   };
 
-  getAccounts(): Observable<any>{
-  	return Observable.create(observer => {
-  	  this.web3.eth.getAccounts((err, accs) => {
-  	    if (err != null) {
-  	      observer.error('There was an error fetching your accounts.')
-  	    }
 
-  	    if (accs.length === 0) {
-  	      observer.error('Couldn\'t get any accounts! Make sure your Ethereum client is configured correctly.')
-  	    }
 
-  	    observer.next(accs)
-  	    observer.complete()
-  	  });
-  	})
+  getAccounts(): Observable<any> {
+    return Observable.create(observer => {
+      console.log(this.web3);
+      this.web3.eth.getAccounts((err, accs) => {
+        if (err != null) {
+          observer.error(err)
+        }
+
+        if (accs && accs.length === 0) {
+          observer.error('Couldn\'t get any accounts! Make sure your Ethereum client is configured correctly.')
+        }
+
+        observer.next(accs)
+        observer.complete()
+      });
+    })
   }
 
 }
