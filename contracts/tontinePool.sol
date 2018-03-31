@@ -14,6 +14,7 @@ contract TontinePool {
     
     address owner;
     bool useRandomOrdering = false;
+    uint fixedPaymentAmountWei = 0;
     
     // used to avoid race conditions when changing the order of participants
     bool isOrderingLocked = false;
@@ -23,15 +24,18 @@ contract TontinePool {
         PAYMENT_SUBMISSION,
         DISTRIBUTION
     }
-    State state = State.REGISTRATION;
+    State public state = State.REGISTRATION;
     
     mapping(address => uint) public paymentsMade;
+    uint public totalWei;
+    uint public numParticipantsPaid;
     
     
     
-    function TontinePool(bool _useRandomOrdering) public {
+    function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei) public {
         owner = msg.sender;
         useRandomOrdering = _useRandomOrdering;
+        fixedPaymentAmountWei = _fixedPaymentAmountWei;
     }
     
     
@@ -151,11 +155,33 @@ contract TontinePool {
     }
     
     
-    
     function makePayment() public payable participantOnly {
         require(state == State.PAYMENT_SUBMISSION);
         
+        __setPaymentsMadeState();
+        if (numParticipantsPaid == participants.length) {
+            state = State.DISTRIBUTION;
+        }
+        
+        if (fixedPaymentAmountWei > 0) {
+            require(msg.value == fixedPaymentAmountWei);
+            require(paymentsMade[msg.sender] == 0); // don't double pay for fixed amounts
+        }
+        
         paymentsMade[msg.sender] += msg.value;
+        totalWei += msg.value;
     }
+    
+    
+    
+    function __setPaymentsMadeState() private {
+        if (paymentsMade[msg.sender] == 0) {
+            numParticipantsPaid += 1;
+        }
+    }
+    
+    
+    
+    /* DISTRIBUTION state functions */
     
 }
