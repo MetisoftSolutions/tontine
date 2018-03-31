@@ -12,7 +12,7 @@ contract TontinePool {
     // used only for efficient lookup
     mapping(address => uint) public participantMap;
     
-    address owner;
+    address public owner;
     bool useRandomOrdering = false;
     uint fixedPaymentAmountWei = 0;
     
