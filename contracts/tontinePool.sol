@@ -3,6 +3,11 @@ pragma solidity ^0.4.16;
 contract TontinePool {
     
     address[] public participants;
+    
+    // maps an address to an index of the participants array + 1 (0 is used for "not found")
+    // used only for efficient lookup
+    mapping(address => uint) public participantMap;
+    
     address owner;
     bool useRandomOrdering = false;
     
@@ -29,30 +34,32 @@ contract TontinePool {
     
     
     
+    /* REGISTRATION state functions */
+    
+    
+    
     function addParticipant(address participant) public requireOwner {
         require(state == State.REGISTRATION);
-        participants.push(participant);
+        
+        uint newLength = participants.push(participant);
+        participantMap[participant] = newLength; // this is already index + 1
     }
     
     
     
     function removeParticipant(address participant) public requireOwner {
         require(state == State.REGISTRATION);
-        uint indexToRemove;
-        bool found = false;
         
-        for (uint i = 0; i < participants.length; i++) {
-            if (participants[i] == participant) {
-                indexToRemove = i;
-                found = true;
-                break;
-            }    
-        }
+        uint indexToRemove = participantMap[participant];
+        require(indexToRemove > 0);
         
-        if (found) {
-            participants[indexToRemove] = participants[participants.length - 1];
-            participants.length -= 1;
-        }
+        address lastParticipant = participants[participants.length - 1];
+        participants[indexToRemove] = lastParticipant;
+        participants.length -= 1;
+        
+        // update the map for both participants
+        participantMap[lastParticipant] = indexToRemove + 1;
+        participantMap[participant] = 0;
     }
     
     
