@@ -1,6 +1,10 @@
 pragma solidity ^0.4.16;
 
+import "./strings.sol";
+import "./intUtil.sol";
+
 contract TontinePool {
+    using strings for *;
     
     address[] public participants;
     
@@ -11,12 +15,17 @@ contract TontinePool {
     address owner;
     bool useRandomOrdering = false;
     
+    // used to avoid race conditions when changing the order of participants
+    bool isOrderingLocked = false;
+    
     enum State {
         REGISTRATION,
         PAYMENT_SUBMISSION,
         DISTRIBUTION
     }
     State state = State.REGISTRATION;
+    
+    mapping(address => uint) public paymentsMade;
     
     
     
@@ -27,7 +36,7 @@ contract TontinePool {
     
     
     
-    modifier requireOwner() {
+    modifier ownerOnly() {
         require(owner == msg.sender);
         _;
     }
@@ -38,7 +47,16 @@ contract TontinePool {
     
     
     
-    function addParticipant(address participant) public requireOwner {
+    modifier useOrderingLock() {
+        require(!isOrderingLocked);
+        isOrderingLocked = true;
+        _;
+        isOrderingLocked = false;
+    }
+    
+    
+    
+    function addParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
         
         uint newLength = participants.push(participant);
@@ -47,7 +65,7 @@ contract TontinePool {
     
     
     
-    function removeParticipant(address participant) public requireOwner {
+    function removeParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
         
         uint indexToRemove = participantMap[participant];
@@ -70,8 +88,74 @@ contract TontinePool {
     
     
     
-    function closeRegistration() public requireOwner() {
+    /*
+    // @param orderingStr
+    //      Comma-delimited list mapping old indices to new indices
+    function setParticipantOrdering(string orderingStr) public ownerOnly useOrderingLock {
+        require(!useRandomOrdering);
+        
+        uint[] memory ordering = __orderingStr2Array(orderingStr);
+        address[] oldIndex2Participant;
+        address participant;
+        uint newIndex;
+        
+        for (uint i = 0; i < participants.length; i++) {
+            oldIndex2Participant[i] = participants[i];
+        }
+        
+        for (i = 0; i < ordering.length; i++) {
+            newIndex = ordering[i];
+            participant = oldIndex2Participant[i];
+            participants[newIndex] = participant;
+            participantMap[participant] = newIndex;
+        }
+    }
+    
+    
+    
+    function __orderingStr2Array(string orderingStr) private returns (uint[]) {
+        var s = orderingStr.toSlice();
+        var delim = ",".toSlice();
+        uint[] storage intParts;
+        uint newIndex;
+        intParts.length = 0;
+        
+        var parts = new string[](s.count(delim)+1);
+        
+        for (uint i = 0; i < parts.length; i++) {
+            parts[i] = s.split(delim).toString();
+            newIndex = intUtil.parseInt(parts[i], 10);
+            require(newIndex >= 0 && newIndex < participants.length);
+            intParts.push(newIndex);
+        }
+        
+        return intParts;
+    }
+    */
+    
+    
+    
+    function closeRegistration() public ownerOnly useOrderingLock {
         state = State.PAYMENT_SUBMISSION;
+    }
+    
+    
+    
+    /* PAYMENT_SUBMISSION state functions */
+    
+    
+    
+    modifier participantOnly() {
+        require(participantMap[msg.sender] > 0);
+        _;
+    }
+    
+    
+    
+    function makePayment() public payable participantOnly {
+        require(state == State.PAYMENT_SUBMISSION);
+        
+        paymentsMade[msg.sender] += msg.value;
     }
     
 }
