@@ -34,6 +34,7 @@ contract TontinePool {
     mapping(address => uint) public paymentsMade;
     uint public totalWei;
     uint public numParticipantsPaid;
+    mapping(address => uint) public pending721Withdrawals;
     
     
     
@@ -204,6 +205,10 @@ contract TontinePool {
         
         paymentsMade[msg.sender] += msg.value;
         totalWei += msg.value;
+        
+        if (state == State.DISTRIBUTION) {
+            __calcWithdrawalTokens();
+        }
     }
     
     
@@ -211,6 +216,19 @@ contract TontinePool {
     function __setPaymentsMadeState() private {
         if (paymentsMade[msg.sender] == 0) {
             numParticipantsPaid += 1;
+        }
+    }
+    
+    
+    
+    function __calcWithdrawalTokens() private {
+        uint participantPayment;
+        uint percentage;
+        
+        for (uint i = 0; i < participants.length; i++) {
+            participantPayment = paymentsMade[participants[i]];
+            percentage = (participantPayment * 100) / totalWei;
+            pending721Withdrawals[participants[i]] = percentage;
         }
     }
     
