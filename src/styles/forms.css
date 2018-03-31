@@ -1,0 +1,41 @@
+.ng-valid[required], .ng-valid.required {
+    border-bottom: medium solid green;
+}
+
+select.ng-valid[required] {
+    border: thin solid silver;
+}
+
+.ng-invalid:not(form) {
+    border-bottom: medium solid #a94442;
+}
+
+input, select {
+    border-radius: 4px;
+    border: thin solid silver;
+    font-size: 14pt;
+    padding: 8px;
+}
+
+input {
+    border-radius: 0px;
+    border: none;
+    border-bottom: medium solid silver;
+    outline: none;
+}
+
+.form-group {
+    margin: 16px;
+}
+
+.alert .alert-danger {
+    background: red;
+    color: #a94442;
+}
+
+label {
+    display: block;
+    font-size: 14pt;
+    margin-bottom: 4px;
+    margin-top: 8px;
+}
