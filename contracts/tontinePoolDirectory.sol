@@ -39,7 +39,7 @@ contract TontinePoolDirectory {
     
     
     
-    function getNumPools(address user) public returns (uint) {
+    function getNumPools(address user) public constant returns (uint) {
         return user2OwnedPools[user].length;
     }
     
