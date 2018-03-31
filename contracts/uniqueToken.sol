@@ -174,8 +174,12 @@ contract UniqueToken is ERC721 {
     
     
     
-    function mint() external returns (uint256) {
-        return __mint(msg.sender);
+    function mint(uint numTokens) external returns (uint256) {
+        require(numTokens <= 100);
+        
+        for (uint i = 1; i <= numTokens; i++) {
+            return __mint(msg.sender);    
+        }
     }
     
     
