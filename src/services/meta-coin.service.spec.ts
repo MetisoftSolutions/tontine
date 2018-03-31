@@ -1,7 +1,8 @@
 import { TestBed, inject } from '@angular/core/testing';
 
 import { MetaCoinService } from './meta-coin.service';
-import {Web3Service} from './services'
+import { Web3Service } from 'services/web3.service';
+
 
 describe('MetaCoinService', () => {
   beforeEach(() => {
