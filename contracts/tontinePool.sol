@@ -2,6 +2,7 @@ pragma solidity ^0.4.16;
 
 import "./strings.sol";
 import "./intUtil.sol";
+import "./uniqueToken.sol";
 
 contract TontinePool {
     using strings for *;
@@ -13,14 +14,18 @@ contract TontinePool {
     mapping(address => uint) public participantMap;
     
     address public owner;
-    bool useRandomOrdering = false;
-    uint fixedPaymentAmountWei = 0;
+    bool public useRandomOrdering = false;
+    uint public fixedPaymentAmountWei = 0;
+    bool public useErc721 = false;
+    
+    address public erc721Master;
     
     // used to avoid race conditions when changing the order of participants
     bool isOrderingLocked = false;
     
     enum State {
         REGISTRATION,
+        MINTING_TOKENS,
         PAYMENT_SUBMISSION,
         DISTRIBUTION
     }
@@ -32,10 +37,11 @@ contract TontinePool {
     
     
     
-    function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei) public {
+    function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei, bool _useErc721) public {
         owner = msg.sender;
         useRandomOrdering = _useRandomOrdering;
         fixedPaymentAmountWei = _fixedPaymentAmountWei;
+        useErc721 = _useErc721;
     }
     
     
@@ -140,7 +146,35 @@ contract TontinePool {
     
     
     function closeRegistration() public ownerOnly useOrderingLock {
+        state = State.MINTING_TOKENS;
+        
+        if (useErc721) {
+            __createErc721Token();
+            __mintTokens();
+        }
+        
         state = State.PAYMENT_SUBMISSION;
+    }
+    
+    
+    
+    function __createErc721Token() private {
+        erc721Master = new UniqueToken("test", "TEST");
+    }
+    
+    
+    
+    function __mintTokens() private {
+        // If a fixed payment amount was set, then each user will end up getting one token.
+        // Otherwise, we will mint 100 tokens and give each user a number of them based on percentage stake in the pool.
+        uint numTokens = 100;
+        
+        if (fixedPaymentAmountWei > 0) {
+            numTokens = participants.length;
+        }
+        
+        UniqueToken uniqueToken = UniqueToken(erc721Master);
+        uniqueToken.mint(numTokens);
     }
     
     
