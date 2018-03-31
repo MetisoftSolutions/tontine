@@ -3,6 +3,7 @@ pragma solidity ^0.4.16;
 import "./tontinePool.sol";
 
 contract TontinePoolDirectory {
+    
     address public owner;
     mapping(address => address[]) public user2OwnedPools;
     
@@ -35,4 +36,18 @@ contract TontinePoolDirectory {
         
         return false;
     }
+    
+    
+    
+    function getNumPools(address user) public returns (uint) {
+        return user2OwnedPools[user].length;
+    }
+    
+    
+    
+    function destroy() public {
+        require(owner == msg.sender);
+        selfdestruct(owner);
+    }
+    
 }
