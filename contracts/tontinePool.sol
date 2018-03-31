@@ -5,7 +5,13 @@ contract TontinePool {
     address[] public participants;
     address owner;
     bool useRandomOrdering = false;
-    bool isParticipantRegistrationClosed = false;
+    
+    enum State {
+        REGISTRATION,
+        PAYMENT_SUBMISSION,
+        DISTRIBUTION
+    }
+    State state = State.REGISTRATION;
     
     
     
@@ -24,14 +30,14 @@ contract TontinePool {
     
     
     function addParticipant(address participant) public requireOwner {
-        require(!isParticipantRegistrationClosed);
+        require(state == State.REGISTRATION);
         participants.push(participant);
     }
     
     
     
     function removeParticipant(address participant) public requireOwner {
-        require(!isParticipantRegistrationClosed);
+        require(state == State.REGISTRATION);
         uint indexToRemove;
         bool found = false;
         
@@ -58,7 +64,7 @@ contract TontinePool {
     
     
     function closeRegistration() public requireOwner() {
-        isParticipantRegistrationClosed = true;
+        state = State.PAYMENT_SUBMISSION;
     }
     
 }
