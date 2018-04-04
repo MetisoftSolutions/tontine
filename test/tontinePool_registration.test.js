@@ -162,6 +162,65 @@ contract('TontinePool', function(accounts) {
         assert.deepEqual(actualParticipants, expectedParticipants, "participants should match");
         done();
       });
-  })
+  });
+
+
+
+  it("should close registration properly", function(done) {
+    let pool;
+
+    TontinePool.new(false, 0, false, false)
+
+      .then(function(instance) {
+        pool = instance;
+        return pool.addParticipant(participantAccounts[0]);
+      })
+
+      .then(function() {
+        return pool.closeRegistration();
+      })
+
+      .then(function() {
+        return pool.state();
+      })
+
+      .then(function(state) {
+        const PAYMENT_SUBMISSION = 2;
+        assert.equal(state, PAYMENT_SUBMISSION, "should be in PAYMENT_SUBMISSION state");
+        done();
+      });
+  });
+
+
+
+  it("should not allow additional participants after registration closes", function(done) {
+    let pool;
+
+    TontinePool.new(false, 0, false, false)
+
+      .then(function(instance) {
+        pool = instance;
+        return pool.addParticipant(participantAccounts[0]);
+      })
+
+      .then(function() {
+        return pool.closeRegistration();
+      })
+
+      .then(function() {
+        return pool.state();
+      })
+
+      .then(function(state) {
+        const PAYMENT_SUBMISSION = 2;
+        assert.equal(state, PAYMENT_SUBMISSION, "should be in PAYMENT_SUBMISSION state");
+        return pool.addParticipant(participantAccounts[1]); // expect failure here
+      })
+
+      .catch(function(err) {
+        assert.equal(err.name, 'StatusError');
+        done();
+      });
+  });
 
 });
