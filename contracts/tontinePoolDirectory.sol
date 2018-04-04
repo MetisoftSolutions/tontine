@@ -26,8 +26,6 @@ contract TontinePoolDirectory {
     /**
      * Adds a pool to the array of pools owned by the sender. Duplicate pools
      * will not be added.
-     *
-     * @param poolAddress
      */
     function addPool(address poolAddress) public {
         TontinePool pool = TontinePool(poolAddress);
@@ -47,11 +45,7 @@ contract TontinePoolDirectory {
      *
      * TODO Remove this function and provide an O(1) lookup for owner pools.
      *
-     * @param arr
-     * @param needle
-     *
-     * @returns
-     *    `true` if `needle` was found in `arr`; `false` otherwise.
+     * @return `true` if `needle` was found in `arr`; `false` otherwise.
      */
     function __inArray(address[] arr, address needle) private returns (bool) {
         for (uint i = 0; i < arr.length; i++) {
@@ -68,10 +62,7 @@ contract TontinePoolDirectory {
     /**
      * Returns the number of pools owned by the given user, as stored in `user2OwnedPools`.
      *
-     * @param user
-     *
-     * @returns
-     *    The number of pools owned.
+     * @return The number of pools owned.
      */
     function getNumPools(address user) public constant returns (uint) {
         return user2OwnedPools[user].length;

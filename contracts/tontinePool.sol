@@ -102,9 +102,6 @@ contract TontinePool {
     
     
     
-    /**
-     * @param participant
-     */
     function addParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
         
@@ -114,17 +111,18 @@ contract TontinePool {
     
     
     
-    /**
-     * @param participant
-     */
     function removeParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
+        require(participants.length > 0);
         
         uint indexToRemove = participantMap[participant];
         require(indexToRemove > 0);
+        indexToRemove -= 1;
         
-        address lastParticipant = participants[participants.length - 1];
-        participants[indexToRemove] = lastParticipant;
+        if (participants.length > 1) {
+          address lastParticipant = participants[participants.length - 1];
+          participants[indexToRemove] = lastParticipant;
+        }
         participants.length -= 1;
         
         // update the map for both participants
@@ -135,8 +133,7 @@ contract TontinePool {
     
     
     /**
-     * @returns
-     *    The number of participants stored in `participants`.
+     * @return The number of participants stored in `participants`.
      */
     function getNumberOfParticipants() public constant returns (uint) {
         return participants.length;

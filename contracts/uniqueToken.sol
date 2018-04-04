@@ -37,6 +37,7 @@ contract UniqueToken is ERC721 {
     mapping(uint256 => address) public tokenIndexToApproved;
     
     event Mint(address owner, uint256 tokenId);
+    event Transfer(address from, address to, uint256 tokenId);
     
     
     

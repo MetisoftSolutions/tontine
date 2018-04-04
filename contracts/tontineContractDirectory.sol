@@ -30,10 +30,8 @@ contract TontineContractDirectory {
      * as well as to add new versions of existing contracts (by overwriting the address
      * mapped to by the same name).
      * 
-     * @param name
-     *      Name of the contract; used later to look up the address.
-     * @param addr
-     *      Address where the contract is stored.
+     * @param name Name of the contract; used later to look up the address.
+     * @param addr Address where the contract is stored.
      */
     function updateContract(bytes32 name, address addr) {
         require(owner == msg.sender);
