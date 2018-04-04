@@ -238,6 +238,10 @@ contract TontinePool {
     
     
     
+    /**
+     * Keeps track of how many participants have paid so that we can tell
+     * when the last payment is being made.
+     */
     function __setPaymentsMadeState() private {
         if (paymentsMade[msg.sender] == 0) {
             numParticipantsPaid += 1;
@@ -250,6 +254,10 @@ contract TontinePool {
     
     
     
+    /**
+     * Calculates the number of ERC 721 tokens each participant should receive
+     * based on how much they paid in.
+     */
     function __calcWithdrawalTokens() private {
         uint participantPayment;
         uint percentage;
@@ -263,6 +271,10 @@ contract TontinePool {
     
     
     
+    /**
+     * The participant calls this function to withdraw the ERC 721 tokens they
+     * received.
+     */
     function withdraw() public participantOnly {
         uint amount = pending721Withdrawals[msg.sender];
         
