@@ -14,9 +14,11 @@ contract TontinePool {
     mapping(address => uint) public participantMap;
     
     address public owner;
+    
     bool public useRandomOrdering = false;
     uint public fixedPaymentAmountWei = 0;
     bool public useErc721 = false;
+    bool public useSinglePayment = false;
     
     address public erc721Master;
     
@@ -38,11 +40,12 @@ contract TontinePool {
     
     
     
-    function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei, bool _useErc721) public {
+    function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei, bool _useErc721, bool _useSinglePayment) public {
         owner = msg.sender;
         useRandomOrdering = _useRandomOrdering;
         fixedPaymentAmountWei = _fixedPaymentAmountWei;
         useErc721 = _useErc721;
+        useSinglePayment = _useSinglePayment;   
     }
     
     
@@ -172,6 +175,8 @@ contract TontinePool {
         
         if (fixedPaymentAmountWei > 0) {
             numTokens = participants.length;
+        } else if (useSinglePayment) {
+            numTokens = 1;
         }
         
         UniqueToken uniqueToken = UniqueToken(erc721Master);
@@ -207,7 +212,11 @@ contract TontinePool {
         totalWei += msg.value;
         
         if (state == State.DISTRIBUTION) {
-            __calcWithdrawalTokens();
+            if (!useSinglePayment) {
+                __calcWithdrawalTokens();
+            } else {
+                __chooseWinner();
+            }
         }
     }
     
@@ -218,6 +227,10 @@ contract TontinePool {
             numParticipantsPaid += 1;
         }
     }
+    
+    
+    
+    /* DISTRIBUTION state functions */
     
     
     
@@ -234,6 +247,19 @@ contract TontinePool {
     
     
     
-    /* DISTRIBUTION state functions */
+    function withdraw() public participantOnly {
+        uint amount = pending721Withdrawals[msg.sender];
+        
+        if (amount > 0) {
+            pending721Withdrawals[msg.sender] = 0;
+            msg.sender.transfer(amount);
+        }
+    }
+    
+    
+    
+    function __chooseWinner() private {
+        
+    }
     
 }
