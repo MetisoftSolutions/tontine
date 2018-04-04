@@ -9,22 +9,47 @@ contract TontinePool {
     
     address[] public participants;
     
-    // maps an address to an index of the participants array + 1 (0 is used for "not found")
-    // used only for efficient lookup
+    /**
+     * Maps an address to an index of the participants array + 1 (0 is used for "not found").
+     * Used only for efficient lookup.
+     */
     mapping(address => uint) public participantMap;
     
     address public owner;
     
     bool public useRandomOrdering = false;
+
+    /**
+     * If set to a value greater than zero, each participant must make an exact payment of
+     * this amount. Otherwise, each participant can make payments of any amount.
+     */
     uint public fixedPaymentAmountWei = 0;
+
+    /**
+     * If `true`, ERC 721 tokens are generated when the contract reaches the `MINTING_TOKENS`
+     * state. These tokens will then be given to participants during the `DISTRIBUTON` state.
+     */
     bool public useErc721 = false;
+
+    /**
+     * If `true`, then a single payment will be made to the winner of the pot.
+     * Otherwise, payments will be disbursed proportionally, usually using ERC 721 tokens.
+     */
     bool public useSinglePayment = false;
     
+
+    /**
+     * In ERC 721 mode, this will store a reference to the deployed ERC 721 contract.
+     */
     address public erc721Master;
+
     
-    // used to avoid race conditions when changing the order of participants
+    /**
+     * Used to avoid race conditions when changing the order of participants.
+     */
     bool isOrderingLocked = false;
     
+
     enum State {
         REGISTRATION,
         MINTING_TOKENS,
@@ -33,6 +58,7 @@ contract TontinePool {
     }
     State public state = State.REGISTRATION;
     
+
     mapping(address => uint) public paymentsMade;
     uint public totalWei;
     uint public numParticipantsPaid;
@@ -42,6 +68,7 @@ contract TontinePool {
     
     function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei, bool _useErc721, bool _useSinglePayment) public {
         owner = msg.sender;
+
         useRandomOrdering = _useRandomOrdering;
         fixedPaymentAmountWei = _fixedPaymentAmountWei;
         useErc721 = _useErc721;
@@ -61,6 +88,11 @@ contract TontinePool {
     
     
     
+    /**
+     * This modifier should be used for any function that modifies the ordering of participants,
+     * unless the function returns a value. If the function returns a value, the logic in this
+     * modifier should be reproduced within the function itself.
+     */
     modifier useOrderingLock() {
         require(!isOrderingLocked);
         isOrderingLocked = true;
@@ -70,6 +102,9 @@ contract TontinePool {
     
     
     
+    /**
+     * @param participant
+     */
     function addParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
         
@@ -79,6 +114,9 @@ contract TontinePool {
     
     
     
+    /**
+     * @param participant
+     */
     function removeParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
         
@@ -96,59 +134,21 @@ contract TontinePool {
     
     
     
+    /**
+     * @returns
+     *    The number of participants stored in `participants`.
+     */
     function getNumberOfParticipants() public constant returns (uint) {
         return participants.length;
     }
     
     
     
-    /*
-    // @param orderingStr
-    //      Comma-delimited list mapping old indices to new indices
-    function setParticipantOrdering(string orderingStr) public ownerOnly useOrderingLock {
-        require(!useRandomOrdering);
-        
-        uint[] memory ordering = __orderingStr2Array(orderingStr);
-        address[] oldIndex2Participant;
-        address participant;
-        uint newIndex;
-        
-        for (uint i = 0; i < participants.length; i++) {
-            oldIndex2Participant[i] = participants[i];
-        }
-        
-        for (i = 0; i < ordering.length; i++) {
-            newIndex = ordering[i];
-            participant = oldIndex2Participant[i];
-            participants[newIndex] = participant;
-            participantMap[participant] = newIndex;
-        }
-    }
-    
-    
-    
-    function __orderingStr2Array(string orderingStr) private returns (uint[]) {
-        var s = orderingStr.toSlice();
-        var delim = ",".toSlice();
-        uint[] storage intParts;
-        uint newIndex;
-        intParts.length = 0;
-        
-        var parts = new string[](s.count(delim)+1);
-        
-        for (uint i = 0; i < parts.length; i++) {
-            parts[i] = s.split(delim).toString();
-            newIndex = intUtil.parseInt(parts[i], 10);
-            require(newIndex >= 0 && newIndex < participants.length);
-            intParts.push(newIndex);
-        }
-        
-        return intParts;
-    }
-    */
-    
-    
-    
+    /**
+     * Allows the owner to close registration. In ERC 721 mode, this is where the tokens are
+     * created. State will transition to `MINTING_TOKENS` for this. After this step, or in
+     * non ERC 721 mode, state will transition to `PAYMENT_SUBMISSION`.
+     */
     function closeRegistration() public ownerOnly useOrderingLock {
         state = State.MINTING_TOKENS;
         
@@ -168,9 +168,12 @@ contract TontinePool {
     
     
     
+    /**
+     * If a fixed payment amount was set, then each user will end up getting one token.
+     * Otherwise, we will mint 100 tokens here and give each user a number of them based
+     * on their percentage stake in the pool.
+     */
     function __mintTokens() private {
-        // If a fixed payment amount was set, then each user will end up getting one token.
-        // Otherwise, we will mint 100 tokens and give each user a number of them based on percentage stake in the pool.
         uint numTokens = 100;
         
         if (fixedPaymentAmountWei > 0) {
@@ -195,6 +198,19 @@ contract TontinePool {
     }
     
     
+
+    /**
+     * Allows a participant to make a payment during `PAYMENT_SUBMISSION`.
+     *
+     * If in fixed payment mode, the participant may only make payments that are
+     * exactly the fixed payment amount.
+     *
+     * In non fixed payment mode, the participant may make any payment amount they
+     * want. Subsequent calls will simply add to whatever amount has already been
+     * paid.
+     *
+     * Once the last payment is collected, state will transition to `DISTRIBUTION`.
+     */
     function makePayment() public payable participantOnly {
         require(state == State.PAYMENT_SUBMISSION);
         
