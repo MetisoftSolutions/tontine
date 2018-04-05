@@ -1,6 +1,9 @@
-var TontinePool = artifacts.require('./tontinePool.sol');
-var UniqueToken = artifacts.require('./uniqueToken.sol');
+const TontinePool = artifacts.require('./tontinePool.sol');
+const UniqueToken = artifacts.require('./uniqueToken.sol');
+
 const _ = require('lodash');
+
+const mintingUtil = require('./mintingUtil');
 
 
 
@@ -45,20 +48,6 @@ contract('TontinePool', function(accounts) {
       });
   });
 
-
-
-  function getMintingStatusEventFromLogs(logs) {
-    let event = null;
-
-    _.forEach(logs, function(log) {
-      if (log.event === 'MintingStatus') {
-        event = log;
-      }
-    });
-
-    return event;
-  }
-
   
 
   function testMintingCycle(uniqueToken, expectedNumTokens) {
@@ -77,7 +66,7 @@ contract('TontinePool', function(accounts) {
 
       .then(function(result) {
         let allTokensMinted = false,
-            mintingStatusEvent = getMintingStatusEventFromLogs(result.logs);
+            mintingStatusEvent = mintingUtil.getMintingStatusEventFromLogs(result.logs);
 
         if (mintingStatusEvent && mintingStatusEvent.args && mintingStatusEvent.args.isComplete) {
           allTokensMinted = true;
@@ -102,7 +91,7 @@ contract('TontinePool', function(accounts) {
 
       .then(function(result) {
         let allTokensMinted = false,
-            mintingStatusEvent = getMintingStatusEventFromLogs(result.logs);
+            mintingStatusEvent = mintingUtil.getMintingStatusEventFromLogs(result.logs);
 
         if (mintingStatusEvent && mintingStatusEvent.args && mintingStatusEvent.args.isComplete) {
           allTokensMinted = true;
