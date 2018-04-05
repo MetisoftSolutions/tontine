@@ -182,10 +182,10 @@ contract TontinePool {
         require(state == State.MINTING_TOKENS);
         __mintSubsetOfTokens(maxNum721Tokens);
     }
-    
 
 
-    event MintingStatus(bool b);
+
+    event MintingStatus(bool isComplete);
     /**
      * Emits `MintingStatus` of `false` if all tokens are still not minted and
      * another call must be made. `true` if all tokens are now minted.

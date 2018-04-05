@@ -47,40 +47,79 @@ contract('TontinePool', function(accounts) {
 
 
 
+  function getMintingStatusEventFromLogs(logs) {
+    let event = null;
+
+    _.forEach(logs, function(log) {
+      if (log.event === 'MintingStatus') {
+        event = log;
+      }
+    });
+
+    return event;
+  }
+
+  
+
+  function testMintingCycle(uniqueToken, expectedNumTokens) {
+    return Promise.resolve({})
+
+      .then(function() {
+        return uniqueToken.totalSupply();
+      })
+
+      .then(function(numTokens) {
+        assert.equal(numTokens.toNumber(), expectedNumTokens);
+
+        expectedNumTokens += 10;
+        return pool.mintSubsetOfTokens();
+      })
+
+      .then(function(result) {
+        let allTokensMinted = false,
+            mintingStatusEvent = getMintingStatusEventFromLogs(result.logs);
+
+        if (mintingStatusEvent && mintingStatusEvent.args && mintingStatusEvent.args.isComplete) {
+          allTokensMinted = true;
+        }
+
+        if (!allTokensMinted) {
+          return testMintingCycle(uniqueToken, expectedNumTokens);
+        } else {
+          return true;
+        }
+      });
+  }
+
+
+
+  function mintAllTokens() {
+    return Promise.resolve({})
+
+      .then(function() {
+        return pool.mintSubsetOfTokens();
+      })
+
+      .then(function(result) {
+        let allTokensMinted = false,
+            mintingStatusEvent = getMintingStatusEventFromLogs(result.logs);
+
+        if (mintingStatusEvent && mintingStatusEvent.args && mintingStatusEvent.args.isComplete) {
+          allTokensMinted = true;
+        }
+
+        if (!allTokensMinted) {
+          return mintAllTokens();
+        }
+      });
+  }
+
+
+
   it("should mint all tokens properly", function(done) {
     let erc721Address,
         uniqueToken,
         expectedNumTokens = 0;
-
-    function testMintingCycle() {
-      return Promise.resolve({})
-
-        .then(function() {
-          return uniqueToken.totalSupply();
-        })
-
-        .then(function(numTokens) {
-          assert.equal(numTokens.toNumber(), expectedNumTokens);
-
-          expectedNumTokens += 10;
-          return pool.mintSubsetOfTokens();
-        })
-
-        .then(function(result) {
-          let allTokensMinted = false;
-
-          _.forEach(result.logs, function(log) {
-            if (allTokensMinted) return;
-            allTokensMinted = (log.event === 'MintingStatus' && log.args.b === true);
-          });
-
-          if (!allTokensMinted) {
-            return testMintingCycle();
-          } else {
-            return true;
-          }
-        });
-    }
 
     Promise.resolve({})
 
@@ -95,7 +134,7 @@ contract('TontinePool', function(accounts) {
       })
 
       .then(function() {
-        return testMintingCycle();
+        return testMintingCycle(uniqueToken, expectedNumTokens);
       })
 
       .then(function() {
@@ -104,6 +143,30 @@ contract('TontinePool', function(accounts) {
 
       .then(function(numTokens) {
         assert.equal(numTokens.toNumber(), 100, "there should be 100 tokens");
+        done();
+      });
+  });
+
+
+
+  it("should transition to payment submission", function(done) {
+    Promise.resolve({})
+
+      .then(function() {
+        return mintAllTokens();
+      })
+
+      .then(function() {
+        return pool.transitionToPaymentSubmission();
+      })
+
+      .then(function() {
+        return pool.state.call();
+      })
+
+      .then(function(status) {
+        const PAYMENT_SUBMISSION = 2;
+        assert.equal(status, PAYMENT_SUBMISSION, "status should be PAYMENT_SUBMISSION");
         done();
       });
   });
