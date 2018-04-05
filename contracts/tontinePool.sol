@@ -57,6 +57,9 @@ contract TontinePool {
         DISTRIBUTION
     }
     State public state = State.REGISTRATION;
+
+
+    uint maxNum721Tokens;
     
 
     mapping(address => uint) public paymentsMade;
@@ -143,19 +146,24 @@ contract TontinePool {
     
     /**
      * Allows the owner to close registration. In ERC 721 mode, this is where the tokens are
-     * created. State will transition to `MINTING_TOKENS` for this. After this step, or in
-     * non ERC 721 mode, state will transition to `PAYMENT_SUBMISSION`.
+     * created. State will transition to `MINTING_TOKENS` for this. After this step, the caller
+     * must call `mintSubsetOfTokens()` until it returns `1`, and then manually call `transitionToPaymentSubmission()`.
+     * The multiple calls are necessary as minting all tokens at once will likely overrun network
+     * per-transaction gas limits.
+     *
+     * If in non ERC 721 mode, state will transition to `PAYMENT_SUBMISSION` automatically.
      */
     function closeRegistration() public ownerOnly useOrderingLock {
         require(participants.length > 0);
-        state = State.MINTING_TOKENS;
-        
+
         if (useErc721) {
+            state = State.MINTING_TOKENS;
             __createErc721Token();
-            __mintTokens();
-        }
+            maxNum721Tokens = __determineMaxNum721Tokens();
         
-        state = State.PAYMENT_SUBMISSION;
+        } else {
+            state = State.PAYMENT_SUBMISSION;
+        }
     }
     
     
@@ -163,15 +171,71 @@ contract TontinePool {
     function __createErc721Token() private {
         erc721Master = new UniqueToken("test", "TEST");
     }
+
+
+
+    /**
+     * Emits `MintingStatus` of `false` if all tokens are still not minted and
+     * another call must be made. `true` if all tokens are now minted.
+     */
+    function mintSubsetOfTokens() public ownerOnly {
+        require(state == State.MINTING_TOKENS);
+        __mintSubsetOfTokens(maxNum721Tokens);
+    }
+    
+
+
+    event MintingStatus(bool b);
+    /**
+     * Emits `MintingStatus` of `false` if all tokens are still not minted and
+     * another call must be made. `true` if all tokens are now minted.
+     */
+    function __mintSubsetOfTokens(uint totalNumTokens) private {
+        UniqueToken uniqueToken = UniqueToken(erc721Master);
+        uint numExistingTokens = uniqueToken.totalSupply();
+        uint maxBatchSize = 10;
+        uint batchSize;
+
+        if (numExistingTokens >= totalNumTokens) {
+            emit MintingStatus(true);
+        }
+
+        batchSize = totalNumTokens - numExistingTokens;
+        if (batchSize > maxBatchSize) {
+            batchSize = maxBatchSize;
+        } else if (batchSize < 0) {
+            batchSize = 0;
+        }
+
+        uniqueToken.mint(batchSize);
+
+        if (batchSize + numExistingTokens >= totalNumTokens) {
+            emit MintingStatus(true);
+        } else {
+            emit MintingStatus(false);
+        }
+    }
+
+
+
+    function transitionToPaymentSubmission() public ownerOnly {
+        require(state == State.MINTING_TOKENS);
+
+        UniqueToken uniqueToken = UniqueToken(erc721Master);
+        uint numExistingTokens = uniqueToken.totalSupply();
+        require (numExistingTokens >= maxNum721Tokens);
+
+        state = State.PAYMENT_SUBMISSION;
+    }
     
     
     
     /**
-     * If a fixed payment amount was set, then each user will end up getting one token.
-     * Otherwise, we will mint 100 tokens here and give each user a number of them based
-     * on their percentage stake in the pool.
+     * Determines the number of unique tokens to mint. If a fixed payment was set, then
+     * each user will end up getting one token. For single payment contracts, only one
+     * token is ever minted. Otherwise, we will want to mint 100 tokens.
      */
-    function __mintTokens() private {
+    function __determineMaxNum721Tokens() private returns (uint) {
         uint numTokens = 100;
         
         if (fixedPaymentAmountWei > 0) {
@@ -179,9 +243,8 @@ contract TontinePool {
         } else if (useSinglePayment) {
             numTokens = 1;
         }
-        
-        UniqueToken uniqueToken = UniqueToken(erc721Master);
-        uniqueToken.mint(numTokens);
+
+        return numTokens;
     }
     
     

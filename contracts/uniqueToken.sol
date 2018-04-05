@@ -179,8 +179,10 @@ contract UniqueToken is ERC721 {
         require(numTokens <= 100);
         
         for (uint i = 1; i <= numTokens; i++) {
-            return __mint(msg.sender);    
+            __mint(msg.sender);
         }
+
+        return 1;
     }
     
     
