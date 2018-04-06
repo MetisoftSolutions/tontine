@@ -244,12 +244,18 @@ contract('TontinePool', function(accounts) {
         })
 
         .then(function() {
-          //return pool.getNumberOfParticipants();
+          return pool.getNumberOfParticipants();
         })
 
         .then(function(numParticipants) {
-          //assert.equal(numParticipants.toNumber(), participants.length);
-          //return verifyPaymentsMade(pool, paymentDetails);
+          let collapsedDetails = _.cloneDeep(paymentDetails);
+
+          collapsedDetails[2].amountWei += collapsedDetails[4].amountWei;
+          collapsedDetails.splice(4, 1);
+
+          assert.equal(numParticipants.toNumber(), participants.length);
+          
+          return verifyPaymentsMade(pool, collapsedDetails);
         })
 
         .then(function() {
