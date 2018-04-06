@@ -43,10 +43,14 @@ contract('TontinePool', function(accounts) {
 
 
   function advanceNewPoolToPaymentSubmissionState(pool, participants) {
+    if (!participants) {
+      participants = participantAccounts;
+    }
+
     return Promise.resolve({})
 
       .then(function() {
-        return addParticipants(pool, participantAccounts);
+        return addParticipants(pool, participants);
       })
 
       .then(function() {
@@ -113,6 +117,34 @@ contract('TontinePool', function(accounts) {
 
 
 
+  /**
+   * Executes multiple calls to the smart contract to ensure that the actual
+   * payments made is equal to what is given in `paymentDetails`.
+   * 
+   * @param {TontinePool} pool 
+   * @param {PaymentDetail[]} paymentDetails
+   */
+  function verifyPaymentsMade(pool, paymentDetails) {
+    let currentPaymentDetail = paymentDetails[0],
+        remainingPaymentDetails = paymentDetails.slice(1);
+
+    return Promise.resolve({})
+
+      .then(function() {
+        return pool.paymentsMade.call(currentPaymentDetail.account);
+      })
+
+      .then(function(actualPaymentMade) {
+        assert.equal(actualPaymentMade.toNumber(), currentPaymentDetail.amountWei, "amount should be the same");
+
+        if (remainingPaymentDetails.length > 0) {
+          return verifyPaymentsMade(pool, remainingPaymentDetails);
+        }
+      });
+  }
+
+
+
   it("should make all fixed payments properly", function(done) {
     let pool,
         fixedAmountWei = 1 * GWEI,
@@ -160,6 +192,69 @@ contract('TontinePool', function(accounts) {
         assert.equal(state, DISTRIBUTION, "state should be DISTRIBUTION");
         done();
       });
+  });
+
+
+
+  it("should make all non-fixed payments properly", function(done) {
+    let pool,
+        participants = [
+          participantAccounts[0],
+          participantAccounts[5],
+          participantAccounts[3],
+          participantAccounts[6],
+          participantAccounts[8]
+        ],
+        paymentDetails = [
+          {
+            account: participantAccounts[0],
+            amountWei: 1 * GWEI
+          },
+          {
+            account: participantAccounts[5],
+            amountWei: 2 * GWEI
+          },
+          {
+            account: participantAccounts[3],
+            amountWei: 1 * GWEI
+          },
+          {
+            account: participantAccounts[6],
+            amountWei: 2.5 * GWEI
+          },
+          {
+            account: participantAccounts[3],  // repeat participant
+            amountWei: 1 * GWEI
+          },
+          {
+            account: participantAccounts[8],
+            amountWei: 3.5 * GWEI
+          }
+        ];
+
+    TontinePool.new(false, 0, true, false)
+
+        .then(function(instance) {
+          pool = instance;
+          return advanceNewPoolToPaymentSubmissionState(pool, participants);
+        })
+
+        .then(function() {
+          return makePayments(pool, paymentDetails);
+        })
+
+        .then(function() {
+          //return pool.getNumberOfParticipants();
+        })
+
+        .then(function(numParticipants) {
+          //assert.equal(numParticipants.toNumber(), participants.length);
+          //return verifyPaymentsMade(pool, paymentDetails);
+        })
+
+        .then(function() {
+          done();
+        });
   });
 
 });

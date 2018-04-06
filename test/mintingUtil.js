@@ -28,7 +28,7 @@ function mintAllTokens(pool) {
       }
 
       if (!allTokensMinted) {
-        return mintAllTokens();
+        return mintAllTokens(pool);
       }
     });
 }
