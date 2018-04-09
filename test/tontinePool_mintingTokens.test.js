@@ -54,7 +54,7 @@ contract('TontinePool', function(accounts) {
     return Promise.resolve({})
 
       .then(function() {
-        return uniqueToken.totalSupply();
+        return uniqueToken.totalSupply.call();
       })
 
       .then(function(numTokens) {
@@ -113,7 +113,7 @@ contract('TontinePool', function(accounts) {
     Promise.resolve({})
 
       .then(function() {
-        return pool.erc721Master();
+        return pool.erc721Master.call();
       })
 
       .then(function(address) {
@@ -137,7 +137,7 @@ contract('TontinePool', function(accounts) {
   });
 
 
-
+  
   it("should transition to payment submission", function(done) {
     Promise.resolve({})
 

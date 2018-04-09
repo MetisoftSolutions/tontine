@@ -54,6 +54,7 @@ contract TontinePool {
         REGISTRATION,
         MINTING_TOKENS,
         PAYMENT_SUBMISSION,
+        CALC_WITHDRAWAL_TOKENS,
         DISTRIBUTION
     }
     State public state = State.REGISTRATION;
@@ -185,7 +186,7 @@ contract TontinePool {
 
 
 
-    event MintingStatus(bool isComplete);
+    event MintingStatus(bool isComplete, uint256[10] tokenIdsMinted);
     /**
      * Emits `MintingStatus` of `false` if all tokens are still not minted and
      * another call must be made. `true` if all tokens are now minted.
@@ -195,9 +196,10 @@ contract TontinePool {
         uint numExistingTokens = uniqueToken.totalSupply();
         uint maxBatchSize = 10;
         uint batchSize;
+        uint256[10] memory tokenIds;
 
         if (numExistingTokens >= totalNumTokens) {
-            emit MintingStatus(true);
+            emit MintingStatus(true, tokenIds);
         }
 
         batchSize = totalNumTokens - numExistingTokens;
@@ -206,13 +208,13 @@ contract TontinePool {
         } else if (batchSize < 0) {
             batchSize = 0;
         }
-
-        uniqueToken.mint(batchSize);
+        
+        tokenIds = uniqueToken.mint(address(this), batchSize);
 
         if (batchSize + numExistingTokens >= totalNumTokens) {
-            emit MintingStatus(true);
+            emit MintingStatus(true, tokenIds);
         } else {
-            emit MintingStatus(false);
+            emit MintingStatus(false, tokenIds);
         }
     }
 
@@ -270,14 +272,14 @@ contract TontinePool {
      * want. Subsequent calls will simply add to whatever amount has already been
      * paid.
      *
-     * Once the last payment is collected, state will transition to `DISTRIBUTION`.
+     * Once the last payment is collected, state will transition to `CALC_WITHDRAWAL_TOKENS`.
      */
     function makePayment() public payable participantOnly {
         require(state == State.PAYMENT_SUBMISSION);
         
         __setPaymentsMadeState();
         if (numParticipantsPaid == participants.length) {
-            state = State.DISTRIBUTION;
+            state = State.CALC_WITHDRAWAL_TOKENS;
         }
         
         if (fixedPaymentAmountWei > 0) {
@@ -288,10 +290,12 @@ contract TontinePool {
         paymentsMade[msg.sender] += msg.value;
         totalWei += msg.value;
         
-        if (state == State.DISTRIBUTION) {
+        if (state == State.CALC_WITHDRAWAL_TOKENS) {
             if (!useSinglePayment) {
                 __calcWithdrawalTokens();
+                state = State.DISTRIBUTION;
             } else {
+                state = State.DISTRIBUTION;
                 __chooseWinner();
             }
         }
@@ -311,7 +315,7 @@ contract TontinePool {
     
     
     
-    /* DISTRIBUTION state functions */
+    /* CALC_WITHDRAWAL_TOKENS state functions */
     
     
     
@@ -320,13 +324,49 @@ contract TontinePool {
      * based on how much they paid in.
      */
     function __calcWithdrawalTokens() private {
+        require(state == State.CALC_WITHDRAWAL_TOKENS);
+
         uint participantPayment;
         uint percentage;
         
         for (uint i = 0; i < participants.length; i++) {
             participantPayment = paymentsMade[participants[i]];
-            percentage = (participantPayment * 100) / totalWei;
-            pending721Withdrawals[participants[i]] = percentage;
+
+            if (fixedPaymentAmountWei > 0) {
+                pending721Withdrawals[participants[i]] = 1;
+            } else {
+                percentage = (participantPayment * 100) / totalWei;
+                pending721Withdrawals[participants[i]] = percentage;
+            }
+        }
+    }
+    
+    
+    
+    /* DISTRIBUTION state functions */
+
+
+
+    /**
+     * Distributes all pending 721 tokens to the appropriate participants.
+     */
+    function distributeTokens() public ownerOnly {
+        require(state == State.DISTRIBUTION);
+
+        uint256 tokenId = 1;
+        uint256 numTokensForParticipant;
+        address participant;
+        UniqueToken uniqueToken = UniqueToken(erc721Master);
+
+        for (uint i = 0; i < participants.length; i++) {
+            participant = participants[i];
+            numTokensForParticipant = uint256(pending721Withdrawals[participant]);
+            pending721Withdrawals[participant] = 0;
+
+            for (uint j = 0; j < numTokensForParticipant; j++) {
+                uniqueToken.transfer(participant, tokenId);
+                tokenId += 1;
+            }
         }
     }
     

@@ -87,7 +87,7 @@ contract UniqueToken is ERC721 {
             mintedBy: owner,
             mintedAt: uint64(now)
         });
-        tokenId = tokens.push(token) - 1;
+        tokenId = tokens.push(token);
         
         emit Mint(owner, tokenId);
         __transfer(0, owner, tokenId);
@@ -133,7 +133,7 @@ contract UniqueToken is ERC721 {
         require(to != address(0));
         require(to != address(this));
         require(__owns(msg.sender, tokenId));
-        
+
         __transfer(msg.sender, to, tokenId);
     }
     
@@ -175,14 +175,17 @@ contract UniqueToken is ERC721 {
     
     
     
-    function mint(uint numTokens) external returns (uint256) {
-        require(numTokens <= 100);
+    function mint(address tokenOwner, uint numTokens) external returns (uint256[10]) {
+        require(numTokens <= 10);
+        require(owner == msg.sender);
+
+        uint256[10] memory tokenIds;
         
-        for (uint i = 1; i <= numTokens; i++) {
-            __mint(msg.sender);
+        for (uint i = 0; i < numTokens; i++) {
+            tokenIds[i] = __mint(tokenOwner);
         }
 
-        return 1;
+        return tokenIds;
     }
     
     

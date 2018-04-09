@@ -12,11 +12,11 @@ function getMintingStatusEventFromLogs(logs) {
   
   
   
-function mintAllTokens(pool) {
+function mintAllTokens(pool, ownerAccount) {
   return Promise.resolve({})
 
     .then(function() {
-      return pool.mintSubsetOfTokens();
+      return pool.mintSubsetOfTokens({from: ownerAccount});
     })
 
     .then(function(result) {
@@ -28,7 +28,10 @@ function mintAllTokens(pool) {
       }
 
       if (!allTokensMinted) {
-        return mintAllTokens(pool);
+        console.log("not all minted yet");
+        return mintAllTokens(pool, ownerAccount);
+      } else {
+        console.log("all minted!");
       }
     });
 }
