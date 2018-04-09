@@ -124,6 +124,25 @@ function genFixedPaymentDetails(participants, fixedAmountWei) {
 
 
 
+/**
+ * Returns a `PaymentDetail` array in which every index `i` in the array has the `account`
+ * of `participants[i]`, and the `amouutWei` of `amounts[i]`.
+ * 
+ * @param {Address[]} participants 
+ * @param {number[]} amounts 
+ * @returns {PaymentDetail[]}
+ */
+function genSimpleNonFixedPaymentDetails(participants, amounts) {
+  return _.map(participants, function(participant, index) {
+    return {
+      account: participant,
+      amountWei: amounts[index]
+    };
+  });
+}
+
+
+
 function getTokenInstance(pool) {
   return Promise.resolve({})
 
@@ -143,5 +162,6 @@ exports = module.exports = {
   advanceNewPoolToDistributionState: advanceNewPoolToDistributionState,
   makePayments: makePayments,
   genFixedPaymentDetails: genFixedPaymentDetails,
+  genSimpleNonFixedPaymentDetails: genSimpleNonFixedPaymentDetails,
   getTokenInstance: getTokenInstance
 };
