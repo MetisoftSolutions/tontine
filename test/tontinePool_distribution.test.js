@@ -27,7 +27,7 @@ contract('TontinePool', function(accounts) {
 
 
 
-  function verifyParticipantTokens(token, participants) {
+  function verifyFixedParticipantTokens(token, participants) {
     let participant = participants[0],
         remainingParticipants = participants.slice(1);
 
@@ -38,19 +38,20 @@ contract('TontinePool', function(accounts) {
       })
 
       .then(function(numTokens) {
+        assert.equal(numTokens.toNumber(), 1, "numTokens should be 1 for fixed payments");
+
         if (remainingParticipants.length > 0) {
-          return verifyParticipantTokens(token, remainingParticipants);
+          return verifyFixedParticipantTokens(token, remainingParticipants);
         }
       });
   }
 
 
 
-  it("should distribute tokens appropriately", function(done) {
+  it("should distribute tokens appropriately for fixed payments", function(done) {
     let pool,
         paymentDetails = poolUtil.genFixedPaymentDetails(participantAccounts, 1 * GWEI),
-        uniqueToken,
-        events;
+        uniqueToken;
 
     TontinePool.new(false, 1 * GWEI, true, false)
 
@@ -70,7 +71,7 @@ contract('TontinePool', function(accounts) {
 
       .then(function(tokenInstance) {
         uniqueToken = tokenInstance;
-        return verifyParticipantTokens(uniqueToken, participantAccounts);
+        return verifyFixedParticipantTokens(uniqueToken, participantAccounts);
       })
 
       .then(function() {
