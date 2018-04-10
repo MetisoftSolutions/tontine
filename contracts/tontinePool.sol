@@ -16,6 +16,7 @@ contract TontinePool {
     mapping(address => uint) public participantMap;
     
     address public owner;
+    string public name;
     
     bool public useRandomOrdering = false;
 
@@ -70,13 +71,14 @@ contract TontinePool {
     
     
     
-    function TontinePool(bool _useRandomOrdering, uint _fixedPaymentAmountWei, bool _useErc721, bool _useSinglePayment) public {
+    function TontinePool(string _name, bool _useRandomOrdering, uint _fixedPaymentAmountWei, bool _useErc721, bool _useSinglePayment) public {
         owner = msg.sender;
 
+        name = _name;
         useRandomOrdering = _useRandomOrdering;
         fixedPaymentAmountWei = _fixedPaymentAmountWei;
         useErc721 = _useErc721;
-        useSinglePayment = _useSinglePayment;   
+        useSinglePayment = _useSinglePayment;
     }
     
     

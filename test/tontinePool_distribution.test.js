@@ -90,7 +90,7 @@ contract('TontinePool', function(accounts) {
         paymentDetails = poolUtil.genFixedPaymentDetails(participantAccounts, 1 * GWEI),
         uniqueToken;
 
-    TontinePool.new(false, 1 * GWEI, true, false)
+    TontinePool.new('test', false, 1 * GWEI, true, false)
 
       .then(function(instance) {
         pool = instance;
@@ -134,7 +134,7 @@ contract('TontinePool', function(accounts) {
         ],
         paymentDetails = poolUtil.genSimpleNonFixedPaymentDetails(participantAccounts, paymentAmounts);
 
-    TontinePool.new(false, 0, true, false)
+    TontinePool.new('test', false, 0, true, false)
 
         .then(function(instance) {
           pool = instance;

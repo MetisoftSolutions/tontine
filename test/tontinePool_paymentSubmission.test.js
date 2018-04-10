@@ -59,7 +59,7 @@ contract('TontinePool', function(accounts) {
         fixedAmountWei = 1 * GWEI,
         paymentDetails = poolUtil.genFixedPaymentDetails(participantAccounts, fixedAmountWei);
 
-    TontinePool.new(false, 1 * GWEI, true, false)
+    TontinePool.new('test', false, 1 * GWEI, true, false)
 
       .then(function(instance) {
         pool = instance;
@@ -134,7 +134,7 @@ contract('TontinePool', function(accounts) {
           }
         ];
 
-    TontinePool.new(false, 0, true, false)
+    TontinePool.new('test',false, 0, true, false)
 
         .then(function(instance) {
           pool = instance;

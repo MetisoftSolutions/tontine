@@ -42,7 +42,7 @@ contract('TontinePool', function(accounts) {
   it("should add a participant", function(done) {
     let pool;
     
-    TontinePool.new(false, 0, false, false)
+    TontinePool.new('test', false, 0, false, false)
 
       .then(function(instance) {
         pool = instance;
@@ -71,7 +71,7 @@ contract('TontinePool', function(accounts) {
   it("should remove a previously added participant", function(done) {
     let pool;
 
-    TontinePool.new(false, 0, false, false)
+    TontinePool.new('test', false, 0, false, false)
 
       .then(function(instance) {
         pool = instance;
@@ -102,7 +102,7 @@ contract('TontinePool', function(accounts) {
   it("should add and remove a bunch of participants", function(done) {
     let pool;
 
-    TontinePool.new(false, 0, false, false)
+    TontinePool.new('test', false, 0, false, false)
 
       .then(function(instance) {
         pool = instance;
@@ -169,7 +169,7 @@ contract('TontinePool', function(accounts) {
   it("should close registration properly", function(done) {
     let pool;
 
-    TontinePool.new(false, 0, false, false)
+    TontinePool.new('test', false, 0, false, false)
 
       .then(function(instance) {
         pool = instance;
@@ -196,7 +196,7 @@ contract('TontinePool', function(accounts) {
   it("should not allow additional participants after registration closes", function(done) {
     let pool;
 
-    TontinePool.new(false, 0, false, false)
+    TontinePool.new('test', false, 0, false, false)
 
       .then(function(instance) {
         pool = instance;
