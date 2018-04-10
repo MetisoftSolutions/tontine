@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { IRouteData } from 'app/app.routes';
 import { IPool } from 'models/IPool';
 import { TontinePoolService } from 'services/tontinePool.service';
+import { LoadingService } from 'services/loading.service';
 
 @Component({
   selector: 'app-page-create-pool',
@@ -24,7 +25,8 @@ export class PageCreatePoolComponent implements OnInit {
 
 
   constructor(
-    private __tontinePoolService: TontinePoolService
+    private __tontinePoolService: TontinePoolService,
+    private __loadingService: LoadingService
   ) {
     this.pool = {
       poolName: '',
@@ -43,8 +45,10 @@ export class PageCreatePoolComponent implements OnInit {
 
 
   onSubmit(pool: IPool) {
+    this.__loadingService.turnOn();
     this.__tontinePoolService.createPool(false, 0, true, false)
       .subscribe((pool: any) => {
+        this.__loadingService.turnOff();
         console.log(pool.address);
         console.log(pool);
       });

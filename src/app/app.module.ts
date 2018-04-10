@@ -15,13 +15,16 @@ import { Web3Service } from 'services/web3.service';
 import { TontinePoolDirectoryService } from 'services/tontinePoolDirectory.service';
 import { ContractService } from 'services/contract.service';
 import { TontinePoolService } from 'services/tontinePool.service';
+import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
+import { LoadingService } from 'services/loading.service';
 
 const SERVICES = [
   Web3Service,
   ContractDirectoryService,
   TontinePoolDirectoryService,
   ContractService,
-  TontinePoolService
+  TontinePoolService,
+  LoadingService
 ];
 
 
@@ -38,7 +41,8 @@ const SERVICES = [
     PageHomeComponent,
     PageCreatePoolComponent,
     RunningPoolsWidgetComponent,
-    PoolInvitationsWidgetComponent
+    PoolInvitationsWidgetComponent,
+    LoadingIndicatorComponent
   ],
   providers: [SERVICES],
   bootstrap: [AppComponent]
