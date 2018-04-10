@@ -5,7 +5,7 @@ var TontinePool = artifacts.require('./tontinePool.sol');
 module.exports = function(deployer) {
   let contractDirectory,
       poolDirectory;
-/*
+
   deployer
 
     .then(() => {
@@ -21,6 +21,6 @@ module.exports = function(deployer) {
       console.log(`Contract directory at: ${contractDirectory.address}`);
 
       return contractDirectory.updateContract("tontinePoolDirectory", poolDirectory.address);
-    });*/
+    });
   
 };

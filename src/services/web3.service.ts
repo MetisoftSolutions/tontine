@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Observable } from 'rxjs/Observable';
+import { Observable } from 'rxjs/Rx';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
 import { environment } from '../environments/environment';
@@ -48,19 +48,29 @@ export class Web3Service {
   getAccounts(): Observable<any> {
     return Observable.create(observer => {
       console.log(this.web3);
-      this.web3.eth.getAccounts((err, accs) => {
+      this.web3.eth.getAccounts((err, accounts) => {
         if (err != null) {
           observer.error(err)
         }
 
-        if (accs && accs.length === 0) {
+        if (accounts && accounts.length === 0) {
           observer.error('Couldn\'t get any accounts! Make sure your Ethereum client is configured correctly.')
         }
 
-        observer.next(accs)
+        observer.next(accounts)
         observer.complete()
       });
     })
+  }
+
+
+
+  getPrimaryAccount(): Observable<any> {    
+    return this.getAccounts()
+
+      .mergeMap((accounts): Observable<any> => {
+        return Observable.of(accounts[0]);
+      });
   }
 
 }

@@ -13,12 +13,16 @@ import { PoolInvitationsWidgetComponent } from './pool-invitations-widget/pool-i
 import { ContractDirectoryService } from 'services/contractDirectory.service';
 import { Web3Service } from 'services/web3.service';
 import { TontinePoolDirectoryService } from 'services/tontinePoolDirectory.service';
+import { ContractService } from 'services/contract.service';
+import { TontinePoolService } from 'services/tontinePool.service';
 
 const SERVICES = [
   Web3Service,
   ContractDirectoryService,
-  TontinePoolDirectoryService
-]
+  TontinePoolDirectoryService,
+  ContractService,
+  TontinePoolService
+];
 
 
 @NgModule({

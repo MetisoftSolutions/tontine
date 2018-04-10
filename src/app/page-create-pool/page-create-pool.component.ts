@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { IRouteData } from 'app/app.routes';
 import { IPool } from 'models/IPool';
+import { TontinePoolService } from 'services/tontinePool.service';
 
 @Component({
   selector: 'app-page-create-pool',
@@ -13,7 +14,6 @@ export class PageCreatePoolComponent implements OnInit {
     navbarName: 'Create Pool'
   }
 
-
   public pool: IPool;
   public paymentTypes: string[] = [
     'fixed',
@@ -22,7 +22,10 @@ export class PageCreatePoolComponent implements OnInit {
   public submitted = false;
 
 
-  constructor() {
+
+  constructor(
+    private __tontinePoolService: TontinePoolService
+  ) {
     this.pool = {
       poolName: '',
       startDate: new Date(Date.now()),
@@ -32,14 +35,18 @@ export class PageCreatePoolComponent implements OnInit {
     };
   }
 
+
+
   ngOnInit() {
   }
 
 
 
-  onSubmit() {
-    if (this.submitted) return;
-    this.submitted = true;
-    console.log(this.pool);
+  onSubmit(pool: IPool) {
+    this.__tontinePoolService.createPool(false, 0, true, false)
+      .subscribe((pool: any) => {
+        console.log(pool.address);
+        console.log(pool);
+      });
   }
 }

@@ -1,28 +1,46 @@
 import { Injectable } from "@angular/core";
 import { Web3Service } from "services/web3.service";
-import { Observable } from "rxjs/Observable";
-import { Observer } from "rxjs/Observer";
+import { Observable, Observer, BehaviorSubject } from "rxjs/Rx";
 
 const contract = require('truffle-contract');
 const contractDirectory = require('../../build/contracts/TontineContractDirectory.json');
+const config = require('../../config/rinkeby.config.js');
 
 
 @Injectable()
 export class ContractDirectoryService {
 
     private ContractDirectory = contract(contractDirectory);
-
     private __contractDirectory: any;
+    private __initEventStream: BehaviorSubject<string>;
+
     constructor(
-        private __web3Service: Web3Service
+      private __web3Service: Web3Service
     ) {
-        this.ContractDirectory.setProvider(__web3Service.web3.currentProvider);
-        this.__contractDirectory = this.ContractDirectory.at('0x0c30702336c4832c91a4da1ec1df5573d4a70e3b');
+
+    }
+
+
+
+    init(initEventStream: BehaviorSubject<string>): Observable<any> {
+      this.__initEventStream = initEventStream;
+      
+      return this.__web3Service.getPrimaryAccount()
+
+        .flatMap((account: string) => {
+          this.ContractDirectory.setProvider(this.__web3Service.web3.currentProvider);
+          this.ContractDirectory.defaults({from: account});
+
+          this.__contractDirectory = this.ContractDirectory.at(config.contractDirectory);
+
+          return Observable.of(true);
+        });
     }
 
 
 
     getAddressFor(contractName: string) {
-        return this.__contractDirectory.contractName2Address(contractName);
+      return this.__contractDirectory.contractName2Address(contractName);
     }
+
 }

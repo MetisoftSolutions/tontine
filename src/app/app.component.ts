@@ -1,5 +1,10 @@
 import { Component, HostListener, NgZone, OnInit } from '@angular/core';
 import { canBeNumber } from '../util/validation';
+import { ContractDirectoryService } from 'services/contractDirectory.service';
+import { TontinePoolDirectoryService } from 'services/tontinePoolDirectory.service';
+import { Promise } from 'bluebird';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ContractService } from 'services/contract.service';
 
 declare var window: any;
 
@@ -9,12 +14,16 @@ declare var window: any;
 })
 export class AppComponent implements OnInit {
 
+  constructor(
+    private __contractService: ContractService
+  ) {
 
-  constructor() {
   }
 
 
 
   ngOnInit(): void {
+    this.__contractService.init();
   }
+
 }

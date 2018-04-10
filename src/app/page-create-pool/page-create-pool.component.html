@@ -1,20 +1,32 @@
 <div class="basic-display">
 
-  <h2>Create A New Pool</h2>
+  <h1>Create a new pool</h1>
 
   <div class="contents">
 
     <form #poolForm="ngForm" (ngSubmit)="onSubmit()">
+
       <div class="form-group">
         <label for="poolName">Pool Name</label>
-        <input type="text" id="form-control" id="poolName" [(ngModel)]="pool.poolName" name="poolName" required #poolName="ngModel"
-        />
+        <input
+          type="text"
+          class="form-control"
+          id="poolName"
+          [(ngModel)]="pool.poolName"
+          name="poolName"
+          #poolName="ngModel"
+          required />
         <div [hidden]="poolName.valid || poolName.pristine" class="alert alert-danger">Pool name is required</div>
       </div>
 
       <div class="form-group">
         <label for="paymentType">Payment Type</label>
-        <select class="form-control" id="paymentType" [(ngModel)]="pool.paymentType" name="paymentType" required>
+        <select
+          class="form-control"
+          id="paymentType"
+          [(ngModel)]="pool.paymentType"
+          name="paymentType"
+          required>
           <option *ngFor="let pmtType of paymentTypes" [value]="pmtType">{{pmtType}}</option>
         </select>
       </div>
@@ -29,12 +41,17 @@
         <input type="date" id="endDate" name="endDate" [(ngModel)]="pool.endDate" required />
       </div>
 
-      <button type="submit" [disabled]="!poolForm.form.valid">Create Pool</button>
+      <button
+        type="submit"
+        [disabled]="!poolForm.form.valid"
+        (onClick)="onSubmit(pool)">
+        Create Pool
+      </button>
     </form>
 
     <div class="frame">
       <div class="frame-header">
-        <h3>Invited Users</h3>
+        <h1>Invited Users</h1>
       </div>
       <div class="frame-body">
         <ul>
