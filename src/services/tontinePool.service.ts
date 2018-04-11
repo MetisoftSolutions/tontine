@@ -24,36 +24,53 @@ export class TontinePoolService {
 
 
 
-  init(initEventStream: BehaviorSubject<string>): Observable<boolean> {
+  init(initEventStream: BehaviorSubject<string>, config: any): Observable<boolean> {
     this.__initEventStream = initEventStream;
 
     return this.__web3Service.getPrimaryAccount()
 
       .flatMap((account: string): Observable<boolean> => {
+        let gas = config.gas,
+            defaults: any = {
+              from: account
+            };
+
+        if (gas) {
+          defaults.gas = gas;
+        }
+
         this.TontinePool.setProvider(this.__web3Service.web3.currentProvider);
-        this.TontinePool.defaults({from: account});
+        this.TontinePool.defaults(defaults);
 
         return Observable.of(true);
+      })
+
+      .catch((error: any, caught: Observable<any>): any => {
+        console.error(error);
+        return Observable.of(false);
       });
   }
 
 
 
-  createPool(useRandomOrdering: boolean, fixedPaymentAmountWei: number, useErc721: boolean, useSinglePayment: boolean) {
+  createPool(name: string, useRandomOrdering: boolean, fixedPaymentAmountWei: number, useErc721: boolean, useSinglePayment: boolean) {
     return this.__initEventStream
 
       .mergeMap((status: string) => {
         if (status) {
           return Observable.from(
             this.TontinePool.new(
+              name,
               useRandomOrdering,
               fixedPaymentAmountWei,
               useErc721,
               useSinglePayment
             )
           );
+        } else {
+          return Observable.of('');
         }
-      });  
+      });
   }
 
 }

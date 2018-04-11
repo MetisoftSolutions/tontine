@@ -7,6 +7,12 @@ import { environment } from '../environments/environment';
 
 const Web3 = require('web3');
 
+const networks = {
+      '1': 'mainnet',
+      '3': 'ropsten',
+      '4': 'rinkeby'
+    };
+
 declare var window: any;
 
 @Injectable()
@@ -33,7 +39,7 @@ export class Web3Service {
       this.web3 = new Web3(window.web3.currentProvider);
     } else {
       console.warn(
-        'No web3 detected. Falling back to ${environment.HttpProvider}. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask'
+        `No web3 detected. Falling back to ${environment.HttpProvider}. You should remove this fallback when you deploy live, as it\'s inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask`
       );
       // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
       this.web3 = new Web3(
@@ -42,6 +48,22 @@ export class Web3Service {
     }
     this.__initialized = true;
   };
+
+
+
+  getNetworkName(): Observable<any> {
+    return Observable.create((observer) => {
+      this.web3.version.getNetwork((err, networkId) => {
+        if (networks.hasOwnProperty(networkId)) {
+          observer.next(networks[networkId]);
+        } else {
+          observer.next('local');
+        }
+
+        observer.complete();
+      });
+    });
+  }
 
 
 

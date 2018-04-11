@@ -37,24 +37,62 @@ export class TontinePoolDirectoryService {
 
 
 
-    init(initEventStream: BehaviorSubject<string>): Observable<any> {
+    init(initEventStream: BehaviorSubject<string>, config: any): Observable<any> {
       this.__initEventStream = initEventStream;
-      
+
       return this.__web3Service.getPrimaryAccount()
 
-        .flatMap((account: string) => {
+        .mergeMap((account: string): Observable<string> => {
+          let gas = config.gas,
+              defaults: any = {
+                from: account
+              };
+
+          if (gas) {
+            defaults.gas = gas;
+          }
+
           this.PoolDirectory.setProvider(this.__web3Service.web3.currentProvider);
-          this.PoolDirectory.defaults({from: account});
+          this.PoolDirectory.defaults(defaults);
           
-          return Observable.from(this.__contractDirectory.getAddressFor('TontinePoolDirectory'));
+          if (config.contractDirectory) {
+            return Observable.from(this.__contractDirectory.getAddressFor('TontinePoolDirectory'));
+          } else {
+            return this.__createPoolDirectory();
+          }
         })
 
-        .flatMap((address: string) => {
+        .mergeMap((address: string) => {
           console.log(`Pool directory at: ${address}`);
           this.__poolDirectory = this.PoolDirectory.at(address);
 
           return Observable.of(true);
+        })
+
+        .catch((error: any, caught: Observable<any>): any => {
+          console.error(error);
         });
+    }
+
+
+
+    private __createPoolDirectory(): Observable<string> {
+      return Observable.from(this.PoolDirectory.new())
+
+        .mergeMap((instance: any) => {
+          this.__poolDirectory = instance;
+          return this.__contractDirectory.updateContract('TontinePoolDirectory', instance.address);
+        })
+
+        .mergeMap(() => {
+          return Observable.of(this.__poolDirectory.address);
+        });
+    }
+
+
+
+    addPoolForUser(poolAddress: string, userAddress: string) {
+      return Observable.from(this.__poolDirectory.addPool(poolAddress, {from: userAddress}));
     }
 
 

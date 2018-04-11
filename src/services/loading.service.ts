@@ -5,16 +5,22 @@ import { BehaviorSubject } from "rxjs";
 export class LoadingService {
 
   isLoading: BehaviorSubject<boolean>;
+  message: BehaviorSubject<string>;
 
 
 
   constructor() {
     this.isLoading = new BehaviorSubject<boolean>(false);
+    this.message = new BehaviorSubject<string>('');
   }
 
 
 
-  turnOn() {
+  turnOn(message?: string) {
+    if (message) {
+      this.message.next(message);
+    }
+    
     this.isLoading.next(true);
   }
 
@@ -22,6 +28,12 @@ export class LoadingService {
 
   turnOff() {
     this.isLoading.next(false);
+  }
+
+
+
+  setMessage(message: string) {
+    this.message.next(message);
   }
 
 }

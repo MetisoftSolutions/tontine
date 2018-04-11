@@ -9,6 +9,7 @@ import { LoadingService } from 'services/loading.service';
 export class LoadingIndicatorComponent implements OnInit {
 
   isLoading = false;
+  message = '';
 
 
 
@@ -23,6 +24,10 @@ export class LoadingIndicatorComponent implements OnInit {
   ngOnInit() {
     this.__loadingService.isLoading.subscribe((isLoading: boolean) => {
       this.isLoading = isLoading;
+    });
+
+    this.__loadingService.message.subscribe((message: string) => {
+      this.message = message;
     });
   }
 

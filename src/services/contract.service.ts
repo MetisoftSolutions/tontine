@@ -9,6 +9,7 @@ import { Web3Service } from "./web3.service";
 export class ContractService {
 
   initEventStream: BehaviorSubject<string> = new BehaviorSubject<string>('');
+  __config: any;
 
 
 
@@ -26,14 +27,19 @@ export class ContractService {
   init() {
     this.__web3Service.checkAndInstantiateWeb3();
 
-    return this.__contractDirectoryService.init(this.initEventStream)
+    return this.__web3Service.getNetworkName()
 
-      .flatMap(() => {
-        return this.__poolDirectoryService.init(this.initEventStream);
+      .flatMap((networkName: string) => {
+        this.__config = require(`../../config/${networkName}.config.js`);
+        return this.__contractDirectoryService.init(this.initEventStream, this.__config);
       })
 
       .flatMap(() => {
-        return this.__tontinePoolService.init(this.initEventStream);
+        return this.__poolDirectoryService.init(this.initEventStream, this.__config);
+      })
+
+      .flatMap(() => {
+        return this.__tontinePoolService.init(this.initEventStream, this.__config);
       })
 
       .subscribe(() => {
