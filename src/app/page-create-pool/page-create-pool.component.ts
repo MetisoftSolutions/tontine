@@ -63,7 +63,7 @@ export class PageCreatePoolComponent implements OnInit {
       .mergeMap((retVal: any[]) => {
         let [userAddress, poolInstance] = retVal;
         this.__loadingService.setMessage("Adding pool contract to directory...");
-        return this.__poolDirectoryService.addPoolForUser(poolInstance.address, userAddress);
+        return this.__poolDirectoryService.addPoolForOwner(poolInstance.address, userAddress);
       })
 
       .catch((error: any, caught: Observable<any>): any => {

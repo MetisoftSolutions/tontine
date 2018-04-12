@@ -12,8 +12,26 @@ contract TontinePoolDirectory {
 
     /**
      * Call the getter to access the array of pools owned by the given user.
+     * Used when you want a list of all pools the user owns.
      */
     mapping(address => address[]) public user2OwnedPools;
+    
+    /**
+     * Maps (the owner of a pool) to a mapping of (a pool address) to (true).
+     * Used when you want to verify that a given user owns a given pool.
+     */
+    mapping(address => mapping(address => bool)) public user2OwnedPoolsMap;
+
+    /**
+     * Call the getter to access the array of pools in which the user is a participant.
+     */
+    mapping(address => address[]) public participant2Pools;
+
+    /**
+     * Maps (the participant of a pool) to a mapping of (a pool address) to (true).
+     * Used when you want to verify that a given user is participating in a given pool.
+     */
+    mapping(address => mapping(address => bool)) public participant2PoolsMap;
     
     
     
@@ -27,34 +45,30 @@ contract TontinePoolDirectory {
      * Adds a pool to the array of pools owned by the sender. Duplicate pools
      * will not be added.
      */
-    function addPool(address poolAddress) public {
+    function addPoolForOwner(address poolAddress) public {
         TontinePool pool = TontinePool(poolAddress);
         require(pool.owner() == msg.sender);
-        
-        address[] storage pools = user2OwnedPools[msg.sender];
-        if (!__inArray(pools, poolAddress)) {
-            pools.push(poolAddress);
+
+        if (!user2OwnedPoolsMap[msg.sender][poolAddress]) {
+            user2OwnedPools[msg.sender].push(poolAddress);
+            user2OwnedPoolsMap[msg.sender][poolAddress] = true;
         }
     }
-    
-    
-    
+
+
+
     /**
-     * Helper function to determine whether the given address is in the given
-     * array of addresses.
-     *
-     * TODO Remove this function and provide an O(1) lookup for owner pools.
-     *
-     * @return `true` if `needle` was found in `arr`; `false` otherwise.
+     * Adds a pool to the array of pools the participant is participating in.
+     * Duplicate pools will not be added.
      */
-    function __inArray(address[] arr, address needle) private returns (bool) {
-        for (uint i = 0; i < arr.length; i++) {
-            if (needle == arr[i]) {
-                return true;
-            }
+    function addPoolForParticipant(address poolAddress, address participant) public {
+        TontinePool pool = TontinePool(poolAddress);
+        require(pool.owner() == msg.sender);
+
+        if (!participant2PoolsMap[participant][poolAddress]) {
+            participant2Pools[participant].push(poolAddress);
+            participant2PoolsMap[participant][poolAddress] = true;
         }
-        
-        return false;
     }
     
     
@@ -64,8 +78,20 @@ contract TontinePoolDirectory {
      *
      * @return The number of pools owned.
      */
-    function getNumPools(address user) public constant returns (uint) {
+    function getNumOwnedPools(address user) public constant returns (uint) {
         return user2OwnedPools[user].length;
+    }
+
+
+
+    /**
+     * Returns the number of pools the given user is participating in, as stored in
+     * `participant2Pools`.
+     *
+     * @return The number of pools owned.
+     */
+    function getNumParticipantPools(address user) public constant returns (uint) {
+        return participant2Pools[user].length;
     }
     
     

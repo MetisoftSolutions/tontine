@@ -91,8 +91,11 @@ export class TontinePoolDirectoryService {
 
 
 
-    addPoolForUser(poolAddress: string, userAddress: string) {
-      return Observable.from(this.__poolDirectory.addPool(poolAddress, {from: userAddress}));
+    addPoolForOwner(poolAddress: string, userAddress: string) {
+      return this.__initEventStream
+        .mergeMap(() => {
+          return Observable.from(this.__poolDirectory.addPoolForOwner(poolAddress, {from: userAddress}));
+        });
     }
 
 
