@@ -102,25 +102,53 @@ export class TontinePoolDirectoryService {
 
 
     getPoolsForOwner(userAddress: string): Observable<any> {
+      return this.__initEventStream
+        .mergeMap(() => {
+          return this.__getPools(userAddress, this.__poolDirectory.getNumOwnedPools.bind(this.__poolDirectory), this.__poolDirectory.user2OwnedPools.bind(this.__poolDirectory));
+        });
+      /*
       return Observable.from(this.__poolDirectory.getNumOwnedPools(userAddress))
 
         .mergeMap((numOwnedPools: number) => {
           return Observable.forkJoin(_.map(_.range(numOwnedPools), (index) => {
             return Observable.from(this.__poolDirectory.user2OwnedPools(userAddress, index)).take(1);
           }));
-        })
+        });*/
     }
 
 
 
-    getPoolsForUser(userAddress: string): Observable<any> {
-      return null;
+    getPoolsForParticipant(userAddress: string): Observable<any> {
+      return this.__initEventStream
+        .mergeMap(() => {
+          return this.__getPools(userAddress, this.__poolDirectory.getNumParticipantPools.bind(this.__poolDirectory), this.__poolDirectory.participant2Pools.bind(this.__poolDirectory));
+        });
       /*
-      return Observable.create((observer: Observer<any>) => {
-        if (!this.__initialized) {
-          this.__poolRequests.push(observer);
-        }
-      });
-      */
+      return Observable.from(this.__poolDirectory.getNumParticipantPools(userAddress))
+
+        .mergeMap((numParticipatingPools: number) => {
+          return Observable.forkJoin(_.map(_.range(numParticipatingPools), (index) => {
+            return Observable.from(this.__poolDirectory.participant2Pools(userAddress, index)).take(1);
+          }));
+        });*/
+    }
+
+
+
+    private __getPools(userAddress: string, fnGetNumPools: Function, fnIndex2PoolAddress: Function): Observable<any> {
+      return Observable.from(fnGetNumPools(userAddress))
+
+        .mergeMap((numPools: any) => {
+          numPools = numPools.toNumber();
+
+          if (numPools > 0) {
+            return Observable.combineLatest(_.map(_.range(numPools), (index) => {
+              return Observable.from(fnIndex2PoolAddress(userAddress, index));
+            }));
+          
+          } else {
+            return Observable.of(['']);
+          }
+        });
     }
 }

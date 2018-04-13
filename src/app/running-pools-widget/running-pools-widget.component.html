@@ -1,11 +1,11 @@
 <div class="frame">
   <div class="frame-header">
-    <h1>My Running Pools</h1>
+    <h1>{{title}}</h1>
   </div>
   <div class="frame-body">
     
     <ul>
-      <li *ngFor="let pool of ownedPools">
+      <li *ngFor="let pool of pools">
         {{pool.name}}
       </li>
     </ul>

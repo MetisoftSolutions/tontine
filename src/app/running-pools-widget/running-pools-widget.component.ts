@@ -1,6 +1,6 @@
-import { Component, OnInit, NgZone } from '@angular/core';
+import { Component, OnInit, NgZone, Input } from '@angular/core';
 import { Web3Service } from 'services/web3.service';
-import { PoolListDaemon } from 'services/poolListDaemon.service';
+import { PoolListDaemon, IPoolIdentifier } from 'services/poolListDaemon.service';
 
 @Component({
   selector: 'app-running-pools-widget',
@@ -9,10 +9,13 @@ import { PoolListDaemon } from 'services/poolListDaemon.service';
 })
 export class RunningPoolsWidgetComponent implements OnInit {
 
-  ownedPools: {
-    name: string,
-    address: string
-  }[];
+  pools: IPoolIdentifier[];
+
+  @Input()
+  title: string;
+
+  @Input()
+  fnNameRetrievePoolList: string;
 
 
 
@@ -25,13 +28,12 @@ export class RunningPoolsWidgetComponent implements OnInit {
 
 
   ngOnInit() {
-    this.ownedPools = this.__poolListDaemon.getOwnedPools();
+    this.pools = this.__poolListDaemon[this.fnNameRetrievePoolList]();
 
     this.__poolListDaemon.updateEventStream
       .subscribe(() => {
         this.__ngZone.run(() => {
-          this.ownedPools = this.__poolListDaemon.getOwnedPools();
-          console.log(this.ownedPools);
+          this.pools = this.__poolListDaemon[this.fnNameRetrievePoolList]();
         });
       });
     this.__poolListDaemon.triggerRefresh.next();

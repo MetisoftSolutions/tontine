@@ -1,4 +1,13 @@
 <div class="basic-display">
-  <app-running-pools-widget></app-running-pools-widget>
+  <app-running-pools-widget
+    [title]="'Pools I own'"
+    [fnNameRetrievePoolList]="'getOwnedPools'">
+  </app-running-pools-widget>
+
+  <app-running-pools-widget
+    [title]="'Pools I\'m participating in'"
+    [fnNameRetrievePoolList]="'getParticipatingPools'">
+  </app-running-pools-widget>
+
   <app-pool-invitations-widget></app-pool-invitations-widget>
 </div>
