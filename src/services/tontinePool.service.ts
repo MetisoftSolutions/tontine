@@ -57,20 +57,26 @@ export class TontinePoolService {
     return this.__initEventStream
 
       .mergeMap((status: string) => {
-        if (status) {
-          return Observable.from(
-            this.TontinePool.new(
-              name,
-              useRandomOrdering,
-              fixedPaymentAmountWei,
-              useErc721,
-              useSinglePayment
-            )
-          );
-        } else {
+        if (!status) {
           return Observable.of('');
         }
+
+        return Observable.from(
+          this.TontinePool.new(
+            name,
+            useRandomOrdering,
+            fixedPaymentAmountWei,
+            useErc721,
+            useSinglePayment
+          )
+        );
       });
+  }
+
+
+
+  getInstanceFromAddress(poolAddress: string) {
+    return Observable.from(this.TontinePool.at(poolAddress));
   }
 
 }

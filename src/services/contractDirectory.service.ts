@@ -49,6 +49,7 @@ export class ContractDirectoryService {
 
         .flatMap((instance: any) => {
           this.__contractDirectory = instance;
+          console.log(`Contract directory is at: ${instance.address}`);
           return Observable.of(true);
         })
 

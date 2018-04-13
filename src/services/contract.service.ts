@@ -4,6 +4,7 @@ import { ContractDirectoryService } from "./contractDirectory.service";
 import { TontinePoolDirectoryService } from "./tontinePoolDirectory.service";
 import { TontinePoolService } from "./tontinePool.service";
 import { Web3Service } from "./web3.service";
+import { PoolListDaemon } from "./poolListDaemon.service";
 
 @Injectable()
 export class ContractService {
@@ -17,7 +18,8 @@ export class ContractService {
     private __contractDirectoryService: ContractDirectoryService,
     private __poolDirectoryService: TontinePoolDirectoryService,
     private __tontinePoolService: TontinePoolService,
-    private __web3Service: Web3Service
+    private __web3Service: Web3Service,
+    private __poolListDaemon: PoolListDaemon
   ) {
 
   }
@@ -44,6 +46,8 @@ export class ContractService {
 
       .subscribe(() => {
         this.initEventStream.next('complete');
+        this.__poolListDaemon.init();
+        this.__poolListDaemon.triggerRefresh.next();
       });
   }
 

@@ -17,6 +17,7 @@ import { ContractService } from 'services/contract.service';
 import { TontinePoolService } from 'services/tontinePool.service';
 import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
 import { LoadingService } from 'services/loading.service';
+import { PoolListDaemon } from 'services/poolListDaemon.service';
 
 const SERVICES = [
   Web3Service,
@@ -24,8 +25,10 @@ const SERVICES = [
   TontinePoolDirectoryService,
   ContractService,
   TontinePoolService,
-  LoadingService
+  LoadingService,
+  PoolListDaemon
 ];
+
 
 
 @NgModule({

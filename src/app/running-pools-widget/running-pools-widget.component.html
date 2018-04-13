@@ -3,6 +3,12 @@
     <h1>My Running Pools</h1>
   </div>
   <div class="frame-body">
-    body body body
+    
+    <ul>
+      <li *ngFor="let pool of ownedPools">
+        {{pool.name}}
+      </li>
+    </ul>
+
   </div>
 </div>

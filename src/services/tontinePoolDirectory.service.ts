@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { ContractDirectoryService } from "services/contractDirectory.service";
 import { Web3Service } from "services/web3.service";
 import { Observable, Observer, BehaviorSubject } from "rxjs/Rx";
+import * as _ from 'lodash';
 
 const contract = require('truffle-contract');
 const contractDirectory = require('../../build/contracts/TontineContractDirectory.json');
@@ -96,6 +97,18 @@ export class TontinePoolDirectoryService {
         .mergeMap(() => {
           return Observable.from(this.__poolDirectory.addPoolForOwner(poolAddress, {from: userAddress}));
         });
+    }
+
+
+
+    getPoolsForOwner(userAddress: string): Observable<any> {
+      return Observable.from(this.__poolDirectory.getNumOwnedPools(userAddress))
+
+        .mergeMap((numOwnedPools: number) => {
+          return Observable.forkJoin(_.map(_.range(numOwnedPools), (index) => {
+            return Observable.from(this.__poolDirectory.user2OwnedPools(userAddress, index)).take(1);
+          }));
+        })
     }
 
 
