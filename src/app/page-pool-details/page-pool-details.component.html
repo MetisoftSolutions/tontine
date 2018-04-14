@@ -81,6 +81,18 @@
         <th>Number of participants that have paid so far:</th>
         <td>{{poolDetails.numParticipantsPaid}}</td>
       </tr>
+
+      <tr>
+        <th>Payments made:</th>
+        <td>
+          <ul>
+            <li *ngFor="let paymentMade of paymentsMade">
+              <strong>{{paymentMade.shortenedParticipant}} :</strong>
+              {{paymentMade.paymentMadeWei}} Wei
+            </li>
+          </ul>
+        </td>
+      </tr>
     </tbody>
   </table>
 

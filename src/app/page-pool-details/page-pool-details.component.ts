@@ -4,6 +4,7 @@ import { LoadingService } from 'services/loading.service';
 import { TontinePoolService, IPoolDetails } from 'services/tontinePool.service';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { Web3Service } from 'services/web3.service';
+import * as _ from 'lodash';
 
 @Component({
   selector: 'app-page-pool-details',
@@ -17,6 +18,10 @@ export class PagePoolDetailsComponent implements OnInit {
   poolDetails: IPoolDetails = null;
   poolDetailsUpdateStream: ReplaySubject<IPoolDetails> = new ReplaySubject<IPoolDetails>(1);
   isOwner: boolean = false;
+  paymentsMade: [{
+    shortenedParticipant: string,
+    paymentMadeWei: string
+  }];
   
   stateChangeEvent: any;
   mintingStatusEvent: any;
@@ -105,8 +110,26 @@ export class PagePoolDetailsComponent implements OnInit {
 
       .subscribe((_poolDetails: IPoolDetails) => {
         this.poolDetails = _poolDetails;
+        this.__processPoolDetails(this.poolDetails);
         this.poolDetailsUpdateStream.next(this.poolDetails);
       });
+  }
+
+
+
+  private __processPoolDetails(poolDetails: IPoolDetails) {
+    this.paymentsMade = _.map(poolDetails.paymentsMade, (paymentMadeWei: string, participantAddress: string) => {
+      return {
+        paymentMadeWei: paymentMadeWei,
+        shortenedParticipant: this.__shortenAddress(participantAddress)
+      };
+    });
+  }
+
+
+
+  private __shortenAddress(address: string) {
+    return address.slice(0, 10) + '...';
   }
 
 

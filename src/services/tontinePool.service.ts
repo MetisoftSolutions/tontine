@@ -28,6 +28,10 @@ const poolStateExternalMap = {
   '4': "Distribution"
 };
 
+export interface IPaymentsMade {
+  [participantAddress: string]: string;
+}
+
 export interface IPoolDetails {
   name: string;
   fixedPaymentAmountWei: string; // string in case the numbers from the contract are very large
@@ -42,9 +46,7 @@ export interface IPoolDetails {
   numParticipantsPaid: number;
 
   participantAddresses: string[];
-  paymentsMade: {
-    [participantAddress: string]: string;
-  };
+  paymentsMade: IPaymentsMade;
   pending721Withdrawals: {
     [participantAddress: string]: number;
   };
@@ -132,6 +134,10 @@ export class TontinePoolService {
     return this.__initEventStreamService.stream
 
       .mergeMap(() => {
+        return Observable.from(this.getParticipants(poolInstance));
+      })
+
+      .mergeMap((participants: string[]) => {
         return Observable.combineLatest([
           poolInstance.name.call(),
           poolInstance.fixedPaymentAmountWei.call(),
@@ -143,8 +149,9 @@ export class TontinePoolService {
           poolInstance.totalWei.call(),
           poolInstance.numParticipantsPaid.call(),
 
-          this.getParticipants(poolInstance),
-          this.getNumTokensMinted(poolInstance)
+          Observable.of(participants),
+          this.getNumTokensMinted(poolInstance),
+          this.getPaymentsMade(poolInstance, participants)
         ]);
       })
 
@@ -161,7 +168,8 @@ export class TontinePoolService {
               numParticipantsPaid,
 
               participantAddresses,
-              numTokensMinted
+              numTokensMinted,
+              paymentsMade
             ] = retVal,
             stateName,
             stateExternalName;
@@ -184,7 +192,7 @@ export class TontinePoolService {
           numParticipantsPaid: numParticipantsPaid,
 
           participantAddresses: participantAddresses,
-          paymentsMade: {},
+          paymentsMade: paymentsMade,
           pending721Withdrawals: {},
 
           numTokensMinted: numTokensMinted
@@ -237,6 +245,28 @@ export class TontinePoolService {
         }
 
         return Observable.of(0);
+      });
+  }
+
+
+
+  getPaymentsMade(poolInstance: any, participants: string[]): Observable<IPaymentsMade> {
+    return Observable.combineLatest(_.map(_.keys(participants), (participant) => {
+        return Observable.from(poolInstance.paymentsMade.call(participant));
+      }))
+
+      .map((paymentsWei: any[]) => {
+        return _.map(paymentsWei, (paymentWei: any) => {
+          return paymentWei.toString();
+        });
+      })
+
+      .mergeMap((paymentsWei: string[]) => {
+        return Observable.of(_.reduce(paymentsWei, (retVal: IPaymentsMade, paymentWei: string, index: number) => {
+          let participant = participants[index];
+          retVal[participant] = paymentWei;
+          return retVal;
+        }, {}));
       });
   }
 
