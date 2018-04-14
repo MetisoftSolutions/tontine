@@ -11,4 +11,5 @@
     [(ngModel)]="newParticipantAddress"
     placeholder="participant address" />
   <button (click)="onClickAddParticipant(newParticipantAddress)">Add Participant</button>
+  <p *ngIf="errorMessage">{{errorMessage}}</p>
 </div>

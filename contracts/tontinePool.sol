@@ -110,6 +110,7 @@ contract TontinePool {
     
     function addParticipant(address participant) public ownerOnly useOrderingLock {
         require(state == State.REGISTRATION);
+        require(participantMap[participant] == 0);
         
         uint newLength = participants.push(participant);
         participantMap[participant] = newLength; // this is already index + 1

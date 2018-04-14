@@ -16,6 +16,7 @@ export class ParticipantListWidgetComponent implements OnInit {
 
   isUpdating = false;
   participants: string[];
+  errorMessage: string;
 
 
 
@@ -34,10 +35,17 @@ export class ParticipantListWidgetComponent implements OnInit {
 
   onClickAddParticipant(newParticipantAddress: string) {
     this.isUpdating = true;
+    this.errorMessage = '';
     Observable.from(this.poolInstance.addParticipant(newParticipantAddress))
-      .subscribe(() => {
-        this.triggerPoolDetailsUpdate();
-      });
+      .subscribe(
+        () => {
+          this.triggerPoolDetailsUpdate();
+          this.isUpdating = false;
+        },
+        (err: any) => {
+          this.isUpdating = false;
+          this.errorMessage = "Error adding participant. Are they already in the pool?"
+        });
   }
 
 }
