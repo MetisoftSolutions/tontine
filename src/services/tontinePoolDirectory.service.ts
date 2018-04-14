@@ -3,6 +3,7 @@ import { ContractDirectoryService } from "services/contractDirectory.service";
 import { Web3Service } from "services/web3.service";
 import { Observable, Observer, BehaviorSubject } from "rxjs/Rx";
 import * as _ from 'lodash';
+import { InitEventStreamService } from "./initEventStream.service";
 
 const contract = require('truffle-contract');
 const contractDirectory = require('../../build/contracts/TontineContractDirectory.json');
@@ -15,32 +16,20 @@ export class TontinePoolDirectoryService {
 
     private PoolDirectory = contract(poolDirectory);
     private __poolDirectory: any;
-    private __initEventStream: BehaviorSubject<string>;
 
     private __poolRequests: Observer<any>[] = [];
 
     constructor(
       private __web3Service: Web3Service,
-      private __contractDirectory: ContractDirectoryService
+      private __contractDirectory: ContractDirectoryService,
+      private __initEventStreamService: InitEventStreamService
     ) {
-      /*
-      this.PoolDirectoryObject.setProvider(this.__web3Service.web3.currentProvider);
-
-      this.__contractDirectory
-        .getAddressFor('TontinePoolDirectory')
-        .then((result) => {
-          this.__poolDirectoryContract = this.PoolDirectoryObject.at(result);
-          this.__initialized = true;
-          this.__poolRequests.forEach(obs => obs.next(result));
-        });
-      */
+      
     }
 
 
 
-    init(initEventStream: BehaviorSubject<string>, config: any): Observable<any> {
-      this.__initEventStream = initEventStream;
-
+    init(config: any): Observable<any> {
       return this.__web3Service.getPrimaryAccount()
 
         .mergeMap((account: string): Observable<string> => {
@@ -57,7 +46,7 @@ export class TontinePoolDirectoryService {
           this.PoolDirectory.defaults(defaults);
           
           if (config.contractDirectory) {
-            return Observable.from(this.__contractDirectory.getAddressFor('TontinePoolDirectory'));
+            return this.__contractDirectory.getAddressFor('TontinePoolDirectory');
           } else {
             return this.__createPoolDirectory();
           }
@@ -93,7 +82,7 @@ export class TontinePoolDirectoryService {
 
 
     addPoolForOwner(poolAddress: string, userAddress: string) {
-      return this.__initEventStream
+      return this.__initEventStreamService.stream
         .mergeMap(() => {
           return Observable.from(this.__poolDirectory.addPoolForOwner(poolAddress, {from: userAddress}));
         });
@@ -102,35 +91,19 @@ export class TontinePoolDirectoryService {
 
 
     getPoolsForOwner(userAddress: string): Observable<any> {
-      return this.__initEventStream
+      return this.__initEventStreamService.stream
         .mergeMap(() => {
           return this.__getPools(userAddress, this.__poolDirectory.getNumOwnedPools.bind(this.__poolDirectory), this.__poolDirectory.user2OwnedPools.bind(this.__poolDirectory));
         });
-      /*
-      return Observable.from(this.__poolDirectory.getNumOwnedPools(userAddress))
-
-        .mergeMap((numOwnedPools: number) => {
-          return Observable.forkJoin(_.map(_.range(numOwnedPools), (index) => {
-            return Observable.from(this.__poolDirectory.user2OwnedPools(userAddress, index)).take(1);
-          }));
-        });*/
     }
 
 
 
     getPoolsForParticipant(userAddress: string): Observable<any> {
-      return this.__initEventStream
+      return this.__initEventStreamService.stream
         .mergeMap(() => {
           return this.__getPools(userAddress, this.__poolDirectory.getNumParticipantPools.bind(this.__poolDirectory), this.__poolDirectory.participant2Pools.bind(this.__poolDirectory));
         });
-      /*
-      return Observable.from(this.__poolDirectory.getNumParticipantPools(userAddress))
-
-        .mergeMap((numParticipatingPools: number) => {
-          return Observable.forkJoin(_.map(_.range(numParticipatingPools), (index) => {
-            return Observable.from(this.__poolDirectory.participant2Pools(userAddress, index)).take(1);
-          }));
-        });*/
     }
 
 

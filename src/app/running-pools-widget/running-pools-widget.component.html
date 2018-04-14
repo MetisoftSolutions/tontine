@@ -6,7 +6,7 @@
     
     <ul>
       <li *ngFor="let pool of pools">
-        {{pool.name}}
+        <a routerLink="/poolDetails/{{pool.address}}">{{pool.name}}</a>
       </li>
     </ul>
 

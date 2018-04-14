@@ -3,6 +3,7 @@ import { TontinePoolDirectoryService } from "./tontinePoolDirectory.service";
 import { Web3Service } from "./web3.service";
 import { Observable, BehaviorSubject } from "rxjs/Rx";
 import { ContractService } from "./contract.service";
+import { InitEventStreamService } from "./initEventStream.service";
 
 const contract = require('truffle-contract');
 const tontinePoolAbi = require('../../build/contracts/TontinePool.json');
@@ -13,20 +14,18 @@ const tontinePoolAbi = require('../../build/contracts/TontinePool.json');
 export class TontinePoolService {
 
   private TontinePool = contract(tontinePoolAbi);
-  private __initEventStream: BehaviorSubject<string>;
 
   constructor(
     private __web3Service: Web3Service,
-    private __poolDirectoryService: TontinePoolDirectoryService
+    private __poolDirectoryService: TontinePoolDirectoryService,
+    private __initEventStreamService: InitEventStreamService
   ) {
 
   }
 
 
 
-  init(initEventStream: BehaviorSubject<string>, config: any): Observable<boolean> {
-    this.__initEventStream = initEventStream;
-
+  init(config: any): Observable<boolean> {
     return this.__web3Service.getPrimaryAccount()
 
       .flatMap((account: string): Observable<boolean> => {
@@ -54,7 +53,7 @@ export class TontinePoolService {
 
 
   createPool(name: string, useRandomOrdering: boolean, fixedPaymentAmountWei: number, useErc721: boolean, useSinglePayment: boolean) {
-    return this.__initEventStream
+    return this.__initEventStreamService.stream
 
       .mergeMap((status: string) => {
         if (!status) {
@@ -76,7 +75,15 @@ export class TontinePoolService {
 
 
   getInstanceFromAddress(poolAddress: string) {
-    return Observable.from(this.TontinePool.at(poolAddress));
+    return this.__initEventStreamService.stream
+
+      .mergeMap((status: string) => {
+        if (!status) {
+          return Observable.of(null);
+        }
+
+        return Observable.from(this.TontinePool.at(poolAddress));
+      });
   }
 
 }

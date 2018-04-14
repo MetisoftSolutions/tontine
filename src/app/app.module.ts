@@ -18,6 +18,8 @@ import { TontinePoolService } from 'services/tontinePool.service';
 import { LoadingIndicatorComponent } from './loading-indicator/loading-indicator.component';
 import { LoadingService } from 'services/loading.service';
 import { PoolListDaemon } from 'services/poolListDaemon.service';
+import { PagePoolDetailsComponent } from './page-pool-details/page-pool-details.component';
+import { InitEventStreamService } from 'services/initEventStream.service';
 
 const SERVICES = [
   Web3Service,
@@ -26,7 +28,8 @@ const SERVICES = [
   ContractService,
   TontinePoolService,
   LoadingService,
-  PoolListDaemon
+  PoolListDaemon,
+  InitEventStreamService
 ];
 
 
@@ -45,7 +48,8 @@ const SERVICES = [
     PageCreatePoolComponent,
     RunningPoolsWidgetComponent,
     PoolInvitationsWidgetComponent,
-    LoadingIndicatorComponent
+    LoadingIndicatorComponent,
+    PagePoolDetailsComponent
   ],
   providers: [SERVICES],
   bootstrap: [AppComponent]

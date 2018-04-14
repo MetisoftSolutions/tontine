@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { Web3Service } from "services/web3.service";
 import { Observable, Observer, BehaviorSubject } from "rxjs/Rx";
+import { InitEventStreamService } from "./initEventStream.service";
 
 const contract = require('truffle-contract');
 const contractDirectory = require('../../build/contracts/TontineContractDirectory.json');
@@ -12,19 +13,17 @@ export class ContractDirectoryService {
 
     private ContractDirectory = contract(contractDirectory);
     private __contractDirectory: any;
-    private __initEventStream: BehaviorSubject<string>;
 
     constructor(
-      private __web3Service: Web3Service
+      private __web3Service: Web3Service,
+      private __initEventStreamService: InitEventStreamService
     ) {
 
     }
 
 
 
-    init(initEventStream: BehaviorSubject<string>, config: any): Observable<any> {
-      this.__initEventStream = initEventStream;
-
+    init(config: any): Observable<any> {
       return this.__web3Service.getPrimaryAccount()
 
         .flatMap((account: string) => {
@@ -60,14 +59,17 @@ export class ContractDirectoryService {
 
 
 
-    getAddressFor(contractName: string) {
-      return this.__contractDirectory.contractName2Address(contractName);
+    getAddressFor(contractName: string): Observable<string> {
+      return Observable.from(this.__contractDirectory.contractName2Address(contractName));
     }
 
 
 
     updateContract(name: string, addr: string) {
-      return this.__contractDirectory.updateContract(name, addr);
+      return this.__initEventStreamService.stream
+        .mergeMap(() => {
+          return Observable.from(this.__contractDirectory.updateContract(name, addr));
+        });
     }
 
 }
