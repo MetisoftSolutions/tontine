@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LoadingService } from 'services/loading.service';
-import { TontinePoolService } from 'services/tontinePool.service';
+import { TontinePoolService, IPoolDetails } from 'services/tontinePool.service';
 import { Observable } from 'rxjs/Rx';
 
 @Component({
@@ -13,6 +13,7 @@ export class PagePoolDetailsComponent implements OnInit {
 
   address: string;
   poolInstance: any;
+  poolDetails: IPoolDetails;
 
 
 
@@ -40,7 +41,8 @@ export class PagePoolDetailsComponent implements OnInit {
         return this.__loadPoolDetails();
       })
 
-      .subscribe(() => {
+      .subscribe((_poolDetails: IPoolDetails) => {
+        this.poolDetails = _poolDetails;
         this.__loadingService.turnOff();
       });
   }
@@ -48,7 +50,7 @@ export class PagePoolDetailsComponent implements OnInit {
 
 
   private __loadPoolDetails() {
-    return Observable.of(null);
+    return this.__poolService.getDetails(this.poolInstance);
   }
 
 }

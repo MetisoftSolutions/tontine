@@ -60,6 +60,9 @@ export class ContractDirectoryService {
 
 
     getAddressFor(contractName: string): Observable<string> {
+      // It's important that we don't use the init event stream here. This is required as part
+      // of the initialization phase for other services. Since this service is the first to be
+      // loaded, it's safe to not use init event stream here.
       return Observable.from(this.__contractDirectory.contractName2Address(contractName));
     }
 

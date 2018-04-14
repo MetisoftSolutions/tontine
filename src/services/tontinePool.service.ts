@@ -4,9 +4,40 @@ import { Web3Service } from "./web3.service";
 import { Observable, BehaviorSubject } from "rxjs/Rx";
 import { ContractService } from "./contract.service";
 import { InitEventStreamService } from "./initEventStream.service";
+import * as _ from 'lodash';
 
 const contract = require('truffle-contract');
 const tontinePoolAbi = require('../../build/contracts/TontinePool.json');
+
+
+
+const poolStateMap = {
+  '0': 'registration',
+  '1': 'mintingTokens',
+  '2': 'paymentSubmission',
+  '3': 'calcWithdrawalTokens',
+  '4': 'distribution'
+};
+
+export interface IPoolDetails {
+  name: string;
+  fixedPaymentAmountWei: string; // string in case the numbers from the contract are very large
+  useErc721: boolean;
+  useSinglePayment: boolean;
+  owner: string,
+
+  state: string; // from poolStateMap
+  totalWei: string;
+  numParticipantsPaid: number;
+
+  participantAddresses: string[];
+  paymentsMade: {
+    [participantAddress: string]: string
+  };
+  pending721Withdrawals: {
+    [participantAddress: string]: number
+  };
+}
 
 
 
@@ -56,10 +87,6 @@ export class TontinePoolService {
     return this.__initEventStreamService.stream
 
       .mergeMap((status: string) => {
-        if (!status) {
-          return Observable.of('');
-        }
-
         return Observable.from(
           this.TontinePool.new(
             name,
@@ -78,12 +105,82 @@ export class TontinePoolService {
     return this.__initEventStreamService.stream
 
       .mergeMap((status: string) => {
-        if (!status) {
-          return Observable.of(null);
-        }
-
         return Observable.from(this.TontinePool.at(poolAddress));
       });
+  }
+
+
+
+  getDetails(poolInstance: any): Observable<IPoolDetails> {
+    return this.__initEventStreamService.stream
+
+      .mergeMap(() => {
+        return Observable.combineLatest([
+          poolInstance.name.call(),
+          poolInstance.fixedPaymentAmountWei.call(),
+          poolInstance.useErc721.call(),
+          poolInstance.useSinglePayment.call(),
+          poolInstance.owner.call(),
+
+          poolInstance.state.call(),
+          poolInstance.totalWei.call(),
+          poolInstance.numParticipantsPaid.call(),
+
+          this.getParticipants(poolInstance)
+        ]);
+      })
+
+      .mergeMap((retVal: any[]): Observable<IPoolDetails> => {
+        let [
+              name,
+              fixedPaymentAmountWei,
+              useErc721,
+              useSinglePayment,
+              owner,
+
+              state,
+              totalWei,
+              numParticipantsPaid,
+
+              participantAddresses
+            ] = retVal;
+
+        state = poolStateMap[state.toNumber()];
+
+        return Observable.of({
+          name: name,
+          fixedPaymentAmountWei: fixedPaymentAmountWei,
+          useErc721: false,
+          useSinglePayment: false,
+          owner: owner,
+
+          state: state,
+          totalWei: totalWei,
+          numParticipantsPaid: numParticipantsPaid,
+
+          participantAddresses: participantAddresses,
+          paymentsMade: {},
+          pending721Withdrawals: {}
+        });
+      });
+  }
+
+
+
+  getParticipants(poolInstance: any): Observable<string[]> {
+    return Observable.from(poolInstance.getNumberOfParticipants())
+
+      .map((numberOfParticipants: any) => numberOfParticipants.toNumber())
+
+      .mergeMap((numberOfParticipants: number) => {
+        if (numberOfParticipants === 0) {
+          return Observable.of([]);
+        }
+        
+        return Observable.combineLatest(_.map(_.range(numberOfParticipants), (index) => {
+          return Observable.from(poolInstance.participants.call(index));
+        }));
+      })
   }
 
 }
