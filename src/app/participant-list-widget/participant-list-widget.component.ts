@@ -16,6 +16,7 @@ export class ParticipantListWidgetComponent implements OnInit {
 
   isUpdating = false;
   participants: string[];
+  stateName: string;
   errorMessage: string;
 
 
@@ -28,6 +29,7 @@ export class ParticipantListWidgetComponent implements OnInit {
     this.poolDetailsUpdateStream
       .subscribe((poolDetails: IPoolDetails) => {
         this.participants = poolDetails.participantAddresses;
+        this.stateName = poolDetails.stateName;
       });
   }
 

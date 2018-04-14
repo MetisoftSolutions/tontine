@@ -1,15 +1,20 @@
 <ul>
   <li *ngFor="let participantAddress of participants">
     {{participantAddress}}
-    <button *ngIf="isOwner">X</button>
+    <button *ngIf="isOwner && state === 'registration'">X</button>
   </li>
 </ul>
 
-<div *ngIf="isOwner">
+<div *ngIf="isOwner && state === 'registration'">
   <input
     type="text"
     [(ngModel)]="newParticipantAddress"
     placeholder="participant address" />
-  <button (click)="onClickAddParticipant(newParticipantAddress)">Add Participant</button>
+
+  <button
+    (click)="onClickAddParticipant(newParticipantAddress)">
+    Add Participant
+  </button>
+
   <p *ngIf="errorMessage">{{errorMessage}}</p>
 </div>

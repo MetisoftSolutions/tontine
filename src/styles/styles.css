@@ -109,7 +109,16 @@ table tr th {
 }
 
 table tr:nth-child(odd) {
+  background-color: #B2DFDB;
+}
+
+table tr:nth-child(even) {
   background-color: #E0F2F1;
+}
+
+table th,
+table td {
+  padding: 3px;
 }
 
 .page {
