@@ -1,5 +1,50 @@
-<p>
-  Pool with address {{address}}
+<div class="page" *ngIf="poolDetails !== null">
+  <h1>{{poolDetails.name}}</h1>
+  
+  <table>
+    <tbody>
+      <tr>
+        <th>Address:</th>
+        <td>{{address}}</td>
+      </tr>
 
-</p>
-<pre>{{poolDetails | json}}</pre>
+      <tr *ngIf="poolDetails.fixedPaymentAmountWei > 0">
+        <th>Fixed payment amount (Wei):</th>
+        <td>{{poolDetails.fixedPaymentAmountWei}}</td>
+      </tr>
+
+      <tr>
+        <th>Uses ERC 721 tokens?</th>
+        <td>{{poolDetails.useErc721 ? "Yes" : "No"}}</td>
+      </tr>
+
+      <tr>
+        <th>Disburses a single payment?</th>
+        <td>{{poolDetails.useSinglePayment ? "Yes" : "No"}}</td>
+      </tr>
+
+      <tr>
+        <th>Current state:</th>
+        <td>{{poolDetails.state}}</td>
+      </tr>
+
+      <tr>
+        <th>Total amount paid in so far (Wei):</th>
+        <td>{{poolDetails.totalWei}}</td>
+      </tr>
+
+      <tr>
+        <th>Number of participants:</th>
+        <td>{{poolDetails.participantAddresses.length}}</td>
+      </tr>
+
+      <tr>
+        <th>Number of participants that have paid so far:</th>
+        <td>{{poolDetails.numParticipantsPaid}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <pre>{{poolDetails | json}}</pre>
+</div>
+

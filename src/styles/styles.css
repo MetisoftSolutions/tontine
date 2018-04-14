@@ -9,7 +9,7 @@ html {
 }
 
 body {
-  font-family: 'Maven Pro', sans-serif;
+  font-family: 'Raleway', sans-serif;
   margin: 0;
   height: inherit;
   width: inherit;
@@ -106,4 +106,16 @@ button:disabled {
   opacity: 0.5;
   background: gray;
   box-shadow: none;
+}
+
+table tr th {
+  text-align: left;
+}
+
+table tr:nth-child(odd) {
+  background-color: #E0F2F1;
+}
+
+.page {
+  padding: 2vw 2vh;
 }

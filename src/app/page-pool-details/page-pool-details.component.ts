@@ -13,7 +13,7 @@ export class PagePoolDetailsComponent implements OnInit {
 
   address: string;
   poolInstance: any;
-  poolDetails: IPoolDetails;
+  poolDetails: IPoolDetails = null;
 
 
 
