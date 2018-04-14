@@ -39,6 +39,18 @@
       </tr>
 
       <tr>
+        <th>Participants:</th>
+        <td>
+          <app-participant-list-widget
+            [isOwner]="isOwner"
+            [triggerPoolDetailsUpdate]="triggerPoolDetailsUpdate"
+            [poolInstance]="poolInstance"
+            [poolDetailsUpdateStream]="poolDetailsUpdateStream">
+          </app-participant-list-widget>
+        </td>
+      </tr>
+
+      <tr>
         <th>Number of participants that have paid so far:</th>
         <td>{{poolDetails.numParticipantsPaid}}</td>
       </tr>

@@ -20,6 +20,7 @@ import { LoadingService } from 'services/loading.service';
 import { PoolListDaemon } from 'services/poolListDaemon.service';
 import { PagePoolDetailsComponent } from './page-pool-details/page-pool-details.component';
 import { InitEventStreamService } from 'services/initEventStream.service';
+import { ParticipantListWidgetComponent } from './participant-list-widget/participant-list-widget.component';
 
 const SERVICES = [
   Web3Service,
@@ -49,7 +50,8 @@ const SERVICES = [
     RunningPoolsWidgetComponent,
     PoolInvitationsWidgetComponent,
     LoadingIndicatorComponent,
-    PagePoolDetailsComponent
+    PagePoolDetailsComponent,
+    ParticipantListWidgetComponent
   ],
   providers: [SERVICES],
   bootstrap: [AppComponent]
