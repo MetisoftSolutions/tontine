@@ -59,6 +59,7 @@ contract TontinePool {
         DISTRIBUTION
     }
     State public state = State.REGISTRATION;
+    event StateChange(State newState);
 
 
     uint maxNum721Tokens;
@@ -86,6 +87,13 @@ contract TontinePool {
     modifier ownerOnly() {
         require(owner == msg.sender);
         _;
+    }
+
+
+
+    function __changeState(State newState) private {
+        state = newState;
+        emit StateChange(newState);
     }
     
     
@@ -161,12 +169,12 @@ contract TontinePool {
         require(participants.length > 0);
 
         if (useErc721) {
-            state = State.MINTING_TOKENS;
+            __changeState(State.MINTING_TOKENS);
             __createErc721Token();
             maxNum721Tokens = __determineMaxNum721Tokens();
         
         } else {
-            state = State.PAYMENT_SUBMISSION;
+            __changeState(State.PAYMENT_SUBMISSION);
         }
     }
     
@@ -230,7 +238,7 @@ contract TontinePool {
         uint numExistingTokens = uniqueToken.totalSupply();
         require (numExistingTokens >= maxNum721Tokens);
 
-        state = State.PAYMENT_SUBMISSION;
+        __changeState(State.PAYMENT_SUBMISSION);
     }
     
     
@@ -282,7 +290,7 @@ contract TontinePool {
         
         __setPaymentsMadeState();
         if (numParticipantsPaid == participants.length) {
-            state = State.CALC_WITHDRAWAL_TOKENS;
+            __changeState(State.CALC_WITHDRAWAL_TOKENS);
         }
         
         if (fixedPaymentAmountWei > 0) {
@@ -296,9 +304,9 @@ contract TontinePool {
         if (state == State.CALC_WITHDRAWAL_TOKENS) {
             if (!useSinglePayment) {
                 __calcWithdrawalTokens();
-                state = State.DISTRIBUTION;
+                __changeState(State.DISTRIBUTION);
             } else {
-                state = State.DISTRIBUTION;
+                __changeState(State.DISTRIBUTION);
                 __chooseWinner();
             }
         }

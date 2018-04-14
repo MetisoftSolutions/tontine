@@ -19,23 +19,33 @@ const poolStateMap = {
   '4': 'distribution'
 };
 
+const poolStateExternalMap = {
+  '0': "Registration",
+  '1': "Minting tokens",
+  '2': "Payment submission",
+  '3': "Calculating withdrawal tokens",
+  '4': "Distribution"
+};
+
 export interface IPoolDetails {
   name: string;
   fixedPaymentAmountWei: string; // string in case the numbers from the contract are very large
   useErc721: boolean;
   useSinglePayment: boolean;
-  owner: string,
+  owner: string;
 
-  state: string; // from poolStateMap
+  stateId: number;
+  stateName: string; // from poolStateMap
+  stateExternalName: string; // from poolStateExternalMap
   totalWei: string;
   numParticipantsPaid: number;
 
   participantAddresses: string[];
   paymentsMade: {
-    [participantAddress: string]: string
+    [participantAddress: string]: string;
   };
   pending721Withdrawals: {
-    [participantAddress: string]: number
+    [participantAddress: string]: number;
   };
 }
 
@@ -138,14 +148,18 @@ export class TontinePoolService {
               useSinglePayment,
               owner,
 
-              state,
+              stateId,
               totalWei,
               numParticipantsPaid,
 
               participantAddresses
-            ] = retVal;
+            ] = retVal,
+            stateName,
+            stateExternalName;
 
-        state = poolStateMap[state.toNumber()];
+        stateId = stateId.toNumber();
+        stateName = poolStateMap[stateId];
+        stateExternalName = poolStateExternalMap[stateId];
 
         return Observable.of({
           name: name,
@@ -154,7 +168,9 @@ export class TontinePoolService {
           useSinglePayment: false,
           owner: owner,
 
-          state: state,
+          stateId: stateId,
+          stateName: stateName,
+          stateExternalName: stateExternalName,
           totalWei: totalWei,
           numParticipantsPaid: numParticipantsPaid,
 
@@ -181,6 +197,12 @@ export class TontinePoolService {
           return Observable.from(poolInstance.participants.call(index));
         }));
       })
+  }
+
+
+
+  closeRegistration(poolInstance: any) {
+    return Observable.from(poolInstance.closeRegistration());
   }
 
 }

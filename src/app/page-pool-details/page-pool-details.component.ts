@@ -17,6 +17,7 @@ export class PagePoolDetailsComponent implements OnInit {
   poolDetails: IPoolDetails = null;
   poolDetailsUpdateStream: ReplaySubject<IPoolDetails> = new ReplaySubject<IPoolDetails>(1);
   isOwner: boolean = false;
+  stateChangeEvent: any;
 
 
 
@@ -43,6 +44,9 @@ export class PagePoolDetailsComponent implements OnInit {
 
       .mergeMap((_poolInstance: any) => {
         this.poolInstance = _poolInstance;
+        this.stateChangeEvent = this.poolInstance.StateChange();
+        this.stateChangeEvent.watch(this.__onStateChanged.bind(this));
+
         this.__loadingService.setMessage("Loading details from pool...");
 
         this.triggerPoolDetailsUpdate();
@@ -67,12 +71,30 @@ export class PagePoolDetailsComponent implements OnInit {
 
 
 
+  private __onStateChanged(error, event) {
+    if (!error) {
+      this.triggerPoolDetailsUpdate();
+    }
+  }
+
+
+
   triggerPoolDetailsUpdate() {
     return Observable.from(this.__poolService.getDetails(this.poolInstance))
 
       .subscribe((_poolDetails: IPoolDetails) => {
         this.poolDetails = _poolDetails;
         this.poolDetailsUpdateStream.next(this.poolDetails);
+      });
+  }
+
+
+
+  onClickCloseRegistration() {
+    return Observable.from(this.__poolService.closeRegistration(this.poolInstance))
+
+      .subscribe(() => {
+        this.triggerPoolDetailsUpdate();
       });
   }
 

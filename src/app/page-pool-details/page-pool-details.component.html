@@ -25,7 +25,14 @@
 
       <tr>
         <th>Current state:</th>
-        <td>{{poolDetails.state}}</td>
+        <td>
+          {{poolDetails.stateExternalName}}
+          <button
+            *ngIf="poolDetails.stateName === 'registration' && isOwner && poolDetails.participantAddresses.length > 1"
+            (click)="onClickCloseRegistration()">
+            Close Registration
+          </button>
+        </td>
       </tr>
 
       <tr>
