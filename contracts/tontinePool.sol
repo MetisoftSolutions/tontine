@@ -166,7 +166,7 @@ contract TontinePool {
      * If in non ERC 721 mode, state will transition to `PAYMENT_SUBMISSION` automatically.
      */
     function closeRegistration() public ownerOnly useOrderingLock {
-        require(participants.length > 0);
+        require(participants.length > 1);
 
         if (useErc721) {
             __changeState(State.MINTING_TOKENS);

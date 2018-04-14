@@ -8,6 +8,7 @@ import * as _ from 'lodash';
 
 const contract = require('truffle-contract');
 const tontinePoolAbi = require('../../build/contracts/TontinePool.json');
+const uniqueTokenAbi = require('../../build/contracts/UniqueToken.json');
 
 
 
@@ -47,6 +48,8 @@ export interface IPoolDetails {
   pending721Withdrawals: {
     [participantAddress: string]: number;
   };
+  
+  numTokensMinted: number;
 }
 
 
@@ -55,6 +58,7 @@ export interface IPoolDetails {
 export class TontinePoolService {
 
   private TontinePool = contract(tontinePoolAbi);
+  private UniqueToken = contract(uniqueTokenAbi);
 
   constructor(
     private __web3Service: Web3Service,
@@ -81,6 +85,9 @@ export class TontinePoolService {
 
         this.TontinePool.setProvider(this.__web3Service.web3.currentProvider);
         this.TontinePool.defaults(defaults);
+
+        this.UniqueToken.setProvider(this.__web3Service.web3.currentProvider);
+        this.UniqueToken.defaults(defaults);
 
         return Observable.of(true);
       })
@@ -136,7 +143,8 @@ export class TontinePoolService {
           poolInstance.totalWei.call(),
           poolInstance.numParticipantsPaid.call(),
 
-          this.getParticipants(poolInstance)
+          this.getParticipants(poolInstance),
+          this.getNumTokensMinted(poolInstance)
         ]);
       })
 
@@ -152,7 +160,8 @@ export class TontinePoolService {
               totalWei,
               numParticipantsPaid,
 
-              participantAddresses
+              participantAddresses,
+              numTokensMinted
             ] = retVal,
             stateName,
             stateExternalName;
@@ -164,8 +173,8 @@ export class TontinePoolService {
         return Observable.of({
           name: name,
           fixedPaymentAmountWei: fixedPaymentAmountWei,
-          useErc721: false,
-          useSinglePayment: false,
+          useErc721: useErc721,
+          useSinglePayment: useSinglePayment,
           owner: owner,
 
           stateId: stateId,
@@ -176,7 +185,9 @@ export class TontinePoolService {
 
           participantAddresses: participantAddresses,
           paymentsMade: {},
-          pending721Withdrawals: {}
+          pending721Withdrawals: {},
+
+          numTokensMinted: numTokensMinted
         });
       });
   }
@@ -201,8 +212,50 @@ export class TontinePoolService {
 
 
 
+  getNumTokensMinted(poolInstance: any): Observable<number> {
+    return Observable.from(poolInstance.erc721Master.call())
+
+      .mergeMap((tokenAddress: string) => {
+        if (!tokenAddress) {
+          return Observable.throw(new Error('NO_ERC_721_MASTER'));
+        }
+
+        return Observable.from(this.UniqueToken.at(tokenAddress));
+      })
+
+      .mergeMap((tokenInstance: any) => {
+        return Observable.from(tokenInstance.totalSupply.call());
+      })
+
+      .mergeMap((numTokensMinted: any) => {
+        return Observable.of(numTokensMinted.toNumber());
+      })
+
+      .catch((err: any, caught: Observable<any>) => {
+        if (err.message !== 'NO_ERC_721_MASTER') {
+          console.error("Unknown error retrieving ERC 721 master address.");
+        }
+
+        return Observable.of(0);
+      });
+  }
+
+
+
   closeRegistration(poolInstance: any) {
     return Observable.from(poolInstance.closeRegistration());
+  }
+
+
+
+  transitionToPaymentSubmission(poolInstance: any) {
+    return Observable.from(poolInstance.transitionToPaymentSubmission());
+  }
+
+
+
+  mintSubsetOfTokens(poolInstance: any) {
+    return Observable.from(poolInstance.mintSubsetOfTokens());
   }
 
 }

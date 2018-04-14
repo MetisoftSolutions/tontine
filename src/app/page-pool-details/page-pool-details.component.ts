@@ -17,7 +17,9 @@ export class PagePoolDetailsComponent implements OnInit {
   poolDetails: IPoolDetails = null;
   poolDetailsUpdateStream: ReplaySubject<IPoolDetails> = new ReplaySubject<IPoolDetails>(1);
   isOwner: boolean = false;
+  
   stateChangeEvent: any;
+  mintingStatusEvent: any;
 
 
 
@@ -44,8 +46,7 @@ export class PagePoolDetailsComponent implements OnInit {
 
       .mergeMap((_poolInstance: any) => {
         this.poolInstance = _poolInstance;
-        this.stateChangeEvent = this.poolInstance.StateChange();
-        this.stateChangeEvent.watch(this.__onStateChanged.bind(this));
+        this.__setUpEventHandlers(this.poolInstance);
 
         this.__loadingService.setMessage("Loading details from pool...");
 
@@ -71,9 +72,29 @@ export class PagePoolDetailsComponent implements OnInit {
 
 
 
+  private __setUpEventHandlers(poolInstance: any) {
+    this.stateChangeEvent = poolInstance.StateChange();
+    this.stateChangeEvent.watch(this.__onStateChanged.bind(this));
+
+    this.mintingStatusEvent = poolInstance.MintingStatus();
+    this.mintingStatusEvent.watch(this.__onMintingStatusChanged.bind(this));
+  }
+
+
+
   private __onStateChanged(error, event) {
     if (!error) {
       this.triggerPoolDetailsUpdate();
+    }
+  }
+
+
+
+  private __onMintingStatusChanged(error, event) {
+    if (!error) {
+      if (!event.args.isComplete) {
+        this.__poolService.mintSubsetOfTokens(this.poolInstance);
+      }
     }
   }
 
@@ -92,7 +113,24 @@ export class PagePoolDetailsComponent implements OnInit {
 
   onClickCloseRegistration() {
     return Observable.from(this.__poolService.closeRegistration(this.poolInstance))
+      .subscribe(() => {
+        this.triggerPoolDetailsUpdate();
+      });
+  }
 
+
+
+  onClickMintTokens() {
+    return Observable.from(this.__poolService.mintSubsetOfTokens(this.poolInstance))
+      .subscribe(() => {
+        this.triggerPoolDetailsUpdate();
+      });
+  }
+
+
+
+  onClickTransitionToPaymentSubmission() {
+    return Observable.from(this.__poolService.transitionToPaymentSubmission(this.poolInstance))
       .subscribe(() => {
         this.triggerPoolDetailsUpdate();
       });

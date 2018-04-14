@@ -27,12 +27,32 @@
         <th>Current state:</th>
         <td>
           {{poolDetails.stateExternalName}}
-          <button
-            *ngIf="poolDetails.stateName === 'registration' && isOwner && poolDetails.participantAddresses.length > 1"
-            (click)="onClickCloseRegistration()">
-            Close Registration
-          </button>
+
+          <div *ngIf="isOwner">
+            <button
+              *ngIf="poolDetails.stateName === 'registration' && poolDetails.participantAddresses.length > 1"
+              (click)="onClickCloseRegistration()">
+              Close Registration
+            </button>
+
+            <button
+              *ngIf="poolDetails.stateName === 'mintingTokens'"
+              (click)="onClickMintTokens()">
+              Mint Tokens
+            </button>
+
+            <button
+              *ngIf="poolDetails.stateName === 'mintingTokens'"
+              (click)="onClickTransitionToPaymentSubmission()">
+              Transition to Payment Submission
+            </button>
+          </div>
         </td>
+      </tr>
+
+      <tr *ngIf="poolDetails.useErc721">
+        <th>Number of tokens minted:</th>
+        <td>{{poolDetails.numTokensMinted}}</td>
       </tr>
 
       <tr>
