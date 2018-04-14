@@ -69,10 +69,8 @@ export class ContractDirectoryService {
 
 
     updateContract(name: string, addr: string) {
-      return this.__initEventStreamService.stream
-        .mergeMap(() => {
-          return Observable.from(this.__contractDirectory.updateContract(name, addr));
-        });
+      // Same thing here in regard to init event stream
+      return Observable.from(this.__contractDirectory.updateContract(name, addr));
     }
 
 }

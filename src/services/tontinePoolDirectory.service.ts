@@ -71,11 +71,16 @@ export class TontinePoolDirectoryService {
 
         .mergeMap((instance: any) => {
           this.__poolDirectory = instance;
-          return this.__contractDirectory.updateContract('TontinePoolDirectory', instance.address);
+          return Observable.from(this.__contractDirectory.updateContract('TontinePoolDirectory', instance.address));
         })
 
         .mergeMap(() => {
           return Observable.of(this.__poolDirectory.address);
+        })
+
+        .catch((err: any) => {
+          console.error(err);
+          return Observable.of(null);
         });
     }
 
