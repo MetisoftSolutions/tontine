@@ -21,6 +21,8 @@ import { PoolListDaemon } from 'services/poolListDaemon.service';
 import { PagePoolDetailsComponent } from './page-pool-details/page-pool-details.component';
 import { InitEventStreamService } from 'services/initEventStream.service';
 import { ParticipantListWidgetComponent } from './participant-list-widget/participant-list-widget.component';
+import { SwitchAccountWidgetComponent } from './switch-account-widget/switch-account-widget.component';
+import { ModalService } from 'services/modal.service';
 
 const SERVICES = [
   Web3Service,
@@ -30,7 +32,8 @@ const SERVICES = [
   TontinePoolService,
   LoadingService,
   PoolListDaemon,
-  InitEventStreamService
+  InitEventStreamService,
+  ModalService
 ];
 
 
@@ -51,7 +54,8 @@ const SERVICES = [
     PoolInvitationsWidgetComponent,
     LoadingIndicatorComponent,
     PagePoolDetailsComponent,
-    ParticipantListWidgetComponent
+    ParticipantListWidgetComponent,
+    SwitchAccountWidgetComponent
   ],
   providers: [SERVICES],
   bootstrap: [AppComponent]

@@ -1,13 +1,25 @@
 <div class="root">
-
   <h1>Tontine</h1>
+  
   <nav>
     <a *ngFor="let route of routes" routerLink="{{route.path}}" routerLinkActive="active">{{route.data?.navbarName}}</a>
   </nav>
 
   <div class="currency-balance">
-    <p >0.001 ETH</p>
+    <p>0.001 ETH</p>
   </div>
 
-  <button class="logout-button no-style"><img src="assets/icons/ic_account_circle_white_48px.svg" />Logout</button>
+  <button
+    *ngIf="isLocalMode"
+    class="navbar-button no-style"
+    (click)="onClickSwitchAccounts()">
+    Switch Accounts
+  </button>
+
+  <button class="navbar-button no-style">
+    <img src="assets/icons/ic_account_circle_white_48px.svg" />
+    Logout
+  </button>
 </div>
+
+<app-switch-account-widget></app-switch-account-widget>

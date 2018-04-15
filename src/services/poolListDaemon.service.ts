@@ -33,9 +33,15 @@ export class PoolListDaemon {
 
 
   init() {
-    this.triggerRefresh.subscribe(() => {
-      this.__refresh();
-    });
+    this.triggerRefresh
+      .subscribe(() => {
+        this.__refresh();
+      });
+
+    this.__web3Service.accountSwitchEventStream
+      .subscribe(() => {
+        this.__refresh();
+      });
   }
 
 

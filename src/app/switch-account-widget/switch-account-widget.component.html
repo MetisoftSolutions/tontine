@@ -1,0 +1,18 @@
+<div class="screen-cover" *ngIf="isVisible">
+  <div class="widget">
+    <h1>Switch Local Account</h1>
+
+    <ul>
+      <li *ngFor="let account of accounts; let i = index">
+        <button (click)="switchTo(account, i)" class="no-style">
+          <strong *ngIf="account === primaryAccount">{{account}}</strong>
+          <span *ngIf="account !== primaryAccount">{{account}}</span>
+        </button>
+      </li>
+    </ul>
+
+    <button (click)="close()">
+      Close
+    </button>
+  </div>
+</div>

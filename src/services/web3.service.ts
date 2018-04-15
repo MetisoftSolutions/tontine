@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { Observable } from 'rxjs/Rx';
+import { Observable, Subject } from 'rxjs/Rx';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
 import { environment } from '../environments/environment';
@@ -18,7 +18,9 @@ declare var window: any;
 @Injectable()
 export class Web3Service {
 
-  public web3: any;
+  web3: any;
+  primaryAccountIndex: number = 0;
+  accountSwitchEventStream: Subject<string> = new Subject<string>();
 
   private __initialized = false;
 
@@ -71,17 +73,17 @@ export class Web3Service {
     return Observable.create(observer => {
       this.web3.eth.getAccounts((err, accounts) => {
         if (err != null) {
-          observer.error(err)
+          observer.error(err);
         }
 
         if (accounts && accounts.length === 0) {
-          observer.error('Couldn\'t get any accounts! Make sure your Ethereum client is configured correctly.')
+          observer.error('Couldn\'t get any accounts! Make sure your Ethereum client is configured correctly.');
         }
 
-        observer.next(accounts)
-        observer.complete()
+        observer.next(accounts);
+        observer.complete();
       });
-    })
+    });
   }
 
 
@@ -90,8 +92,15 @@ export class Web3Service {
     return this.getAccounts()
 
       .mergeMap((accounts): Observable<any> => {
-        return Observable.of(accounts[0]);
+        return Observable.of(accounts[this.primaryAccountIndex]);
       });
+  }
+
+
+
+  setPrimaryAccount(account: string, index: number) {
+    this.primaryAccountIndex = index;
+    this.accountSwitchEventStream.next(account);
   }
 
 }
