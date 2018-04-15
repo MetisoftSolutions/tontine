@@ -50,4 +50,18 @@ export class ParticipantListWidgetComponent implements OnInit {
         });
   }
 
+
+
+  onClickRemoveParticipant(participantAddress: string) {
+    Observable.from(this.poolInstance.removeParticipant(participantAddress))
+      .subscribe(
+        () => {
+          this.triggerPoolDetailsUpdate();
+        },
+        (err: any) => {
+          console.error(err);
+        }
+      );
+  }
+
 }

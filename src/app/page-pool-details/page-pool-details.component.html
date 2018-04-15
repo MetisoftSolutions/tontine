@@ -8,6 +8,11 @@
         <td>{{address}}</td>
       </tr>
 
+      <tr>
+        <th>Owner:</th>
+        <td>{{poolDetails.owner}}</td>
+      </tr>
+
       <tr *ngIf="poolDetails.fixedPaymentAmountWei > 0">
         <th>Fixed payment amount (Wei):</th>
         <td>{{poolDetails.fixedPaymentAmountWei}}</td>

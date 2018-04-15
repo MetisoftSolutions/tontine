@@ -1,7 +1,11 @@
 <ul>
   <li *ngFor="let participantAddress of participants">
     {{participantAddress}}
-    <button *ngIf="isOwner && stateName === 'registration'">X</button>
+    <button
+      *ngIf="isOwner && stateName === 'registration'"
+      (click)="onClickRemoveParticipant(participantAddress)">
+      X
+    </button>
   </li>
 </ul>
 
