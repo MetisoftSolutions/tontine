@@ -20,9 +20,14 @@ export class PagePoolDetailsComponent implements OnInit {
   poolDetailsUpdateStream: ReplaySubject<IPoolDetails> = new ReplaySubject<IPoolDetails>(1);
   isOwner: boolean = false;
   isParticipant: boolean = false;
+
   paymentsMade: [{
     shortenedParticipant: string,
     paymentMadeWei: string
+  }];
+  pending721Withdrawals: [{
+    shortenedParticipant: string,
+    pending721Amount: number
   }];
   
   stateChangeEvent: any;
@@ -127,6 +132,13 @@ export class PagePoolDetailsComponent implements OnInit {
     this.paymentsMade = _.map(poolDetails.paymentsMade, (paymentMadeWei: string, participantAddress: string) => {
       return {
         paymentMadeWei: paymentMadeWei,
+        shortenedParticipant: this.__shortenAddress(participantAddress)
+      };
+    });
+
+    this.pending721Withdrawals = _.map(poolDetails.pending721Withdrawals, (pending721Amount: number, participantAddress: string) => {
+      return {
+        pending721Amount: pending721Amount,
         shortenedParticipant: this.__shortenAddress(participantAddress)
       };
     });

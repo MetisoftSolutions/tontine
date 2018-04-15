@@ -61,7 +61,7 @@
       </tr>
 
       <tr>
-        <th>Total amount paid in so far (Wei):</th>
+        <th>Total amount paid in so far (wei):</th>
         <td>{{poolDetails.totalWei}}</td>
       </tr>
 
@@ -92,8 +92,20 @@
         <td>
           <ul>
             <li *ngFor="let paymentMade of paymentsMade">
-              <strong>{{paymentMade.shortenedParticipant}} :</strong>
-              {{paymentMade.paymentMadeWei}} Wei
+              <strong>{{paymentMade.shortenedParticipant}}:</strong>
+              {{paymentMade.paymentMadeWei}} wei
+            </li>
+          </ul>
+        </td>
+      </tr>
+
+      <tr *ngIf="poolDetails.useErc721 && (poolDetails.stateName === 'calcWithdrawalTokens' || poolDetails.stateName === 'distribution')">
+        <th>Pending 721 withdrawals:</th>
+        <td>
+          <ul>
+            <li *ngFor="let pending721Withdrawal of pending721Withdrawals">
+              <strong>{{pending721Withdrawal.shortenedParticipant}}:</strong>
+              {{pending721Withdrawal.pending721Amount}} tokens
             </li>
           </ul>
         </td>

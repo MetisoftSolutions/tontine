@@ -34,6 +34,10 @@ export interface IPaymentsMade {
   [participantAddress: string]: string;
 }
 
+export interface IPending721Withdrawals {
+  [participantAddress: string]: number;
+}
+
 export interface IPoolDetails {
   name: string;
   fixedPaymentAmountWei: string; // string in case the numbers from the contract are very large
@@ -49,9 +53,7 @@ export interface IPoolDetails {
 
   participantAddresses: string[];
   paymentsMade: IPaymentsMade;
-  pending721Withdrawals: {
-    [participantAddress: string]: number;
-  };
+  pending721Withdrawals: IPending721Withdrawals;
   
   numTokensMinted: number;
 }
@@ -153,7 +155,8 @@ export class TontinePoolService {
 
           Observable.of(participants),
           this.getNumTokensMinted(poolInstance),
-          this.getPaymentsMade(poolInstance, participants)
+          this.getPaymentsMade(poolInstance, participants),
+          this.getPending721Withdrawals(poolInstance, participants)
         ]);
       })
 
@@ -171,7 +174,8 @@ export class TontinePoolService {
 
               participantAddresses,
               numTokensMinted,
-              paymentsMade
+              paymentsMade,
+              pending721Withdrawals
             ] = retVal,
             stateName,
             stateExternalName;
@@ -195,7 +199,7 @@ export class TontinePoolService {
 
           participantAddresses: participantAddresses,
           paymentsMade: paymentsMade,
-          pending721Withdrawals: {},
+          pending721Withdrawals: pending721Withdrawals,
 
           numTokensMinted: numTokensMinted
         });
@@ -271,6 +275,32 @@ export class TontinePoolService {
         return Observable.of(_.reduce(paymentsWei, (retVal: IPaymentsMade, paymentWei: string, index: number) => {
           let participant = participants[index];
           retVal[participant] = paymentWei;
+          return retVal;
+        }, {}));
+      });
+  }
+
+
+
+  getPending721Withdrawals(poolInstance: any, participants: string[]): Observable<IPending721Withdrawals> {
+    if (participants.length === 0) {
+      return Observable.of({});
+    }
+
+    return Observable.combineLatest(_.map(participants, (participant) => {
+        return Observable.from(poolInstance.pending721Withdrawals.call(participant));
+      }))
+
+      .map((pending721Withdrawals: any[]) => {
+        return _.map(pending721Withdrawals, (pending721Withdrawal: any) => {
+          return pending721Withdrawal.toNumber();
+        });
+      })
+
+      .mergeMap((pending721Withdrawals: number[]) => {
+        return Observable.of(_.reduce(pending721Withdrawals, (retVal: IPending721Withdrawals, pending721Withdrawal: number, index: number) => {
+          let participant = participants[index];
+          retVal[participant] = pending721Withdrawal;
           return retVal;
         }, {}));
       });
