@@ -19,12 +19,17 @@ export class PageCreatePoolComponent implements OnInit {
     navbarName: 'Create Pool'
   }
 
-  public pool: IPool;
   public paymentTypes: string[] = [
     'fixed',
     'variable'
   ];
   public submitted = false;
+
+  poolName = '';
+  paymentType = 'variable';
+  fixedPaymentAmountWei = 0;
+  useErc721 = false;
+  useSinglePayment = false;
 
 
 
@@ -36,13 +41,6 @@ export class PageCreatePoolComponent implements OnInit {
     private __ngZone: NgZone,
     private __router: Router
   ) {
-    this.pool = {
-      poolName: '',
-      startDate: new Date(Date.now()),
-      endDate: new Date(Date.now()),
-      paymentType: 'fixed',
-      users: []
-    };
   }
 
 
@@ -57,7 +55,7 @@ export class PageCreatePoolComponent implements OnInit {
     
     Observable.forkJoin([
         this.__web3Service.getPrimaryAccount().take(1),
-        this.__tontinePoolService.createPool(this.pool.poolName, false, 0, true, false).take(1)
+        this.__tontinePoolService.createPool(this.poolName, false, this.fixedPaymentAmountWei, this.useErc721, this.useSinglePayment).take(1)
       ])
 
       .mergeMap((retVal: any[]) => {

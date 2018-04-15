@@ -47,7 +47,6 @@ p {
 .basic-display {
   display: flex;
   padding: 16px;
-  overflow: auto;
   width: calc(100% - 32px);
   flex-direction: column;
 }

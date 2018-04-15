@@ -11,34 +11,63 @@
         <input
           type="text"
           class="form-control"
-          id="poolName"
-          [(ngModel)]="pool.poolName"
+          [(ngModel)]="poolName"
           name="poolName"
-          #poolName="ngModel"
+          id="poolName"
+          #poolNameControl="ngModel"
           required />
-        <div [hidden]="poolName.valid || poolName.pristine" class="alert alert-danger">Pool name is required</div>
+        <div [hidden]="poolNameControl.valid || poolNameControl.pristine" class="alert alert-danger">Pool name is required</div>
       </div>
 
       <div class="form-group">
         <label for="paymentType">Payment Type</label>
         <select
           class="form-control"
-          id="paymentType"
-          [(ngModel)]="pool.paymentType"
+          [(ngModel)]="paymentType"
           name="paymentType"
+          id="paymentType"
           required>
           <option *ngFor="let pmtType of paymentTypes" [value]="pmtType">{{pmtType}}</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="startDate">Start Date</label>
-        <input type="date" id="startDate" name="startDate" [(ngModel)]="pool.startDate" required />
+      <div class="form-group" *ngIf="paymentType === 'fixed'">
+        <label for="fixedPaymentAmountWei">Fixed payment amount (wei)</label>
+        <input
+          type="number"
+          class="form-control"
+          name="fixedPaymentAmountWei"
+          id="fixedPaymentAmountWei"
+          [(ngModel)]="fixedPaymentAmountWei"
+          min="1" />
       </div>
 
-      <div class="form-group">
-        <label for="endDate">Start Date</label>
-        <input type="date" id="endDate" name="endDate" [(ngModel)]="pool.endDate" required />
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="useErc721"
+          [(ngModel)]="useErc721"
+          id="useErc721" />
+        <label
+          class="form-check-label"
+          for="useErc721">
+          Use ERC 721 Tokens?
+        </label>
+      </div>
+      
+      <div class="form-check">
+        <input
+          class="form-check-input"
+          type="checkbox"
+          name="useSinglePayment"
+          [(ngModel)]="useSinglePayment"
+          id="useSinglePayment" />
+        <label
+          class="form-check-label"
+          for="useSinglePayment">
+          Use single payment?
+        </label>
       </div>
 
       <button
@@ -48,18 +77,6 @@
         Create Pool
       </button>
     </form>
-
-    <div class="frame">
-      <div class="frame-header">
-        <h1>Invited Users</h1>
-      </div>
-      <div class="frame-body">
-        <ul>
-          <li *ngFor="let users of pool.users">{{user.name}}</li>
-        </ul>
-      </div>
-
-    </div>
   </div>
 
 </div>
