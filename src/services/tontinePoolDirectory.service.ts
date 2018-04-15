@@ -54,7 +54,11 @@ export class TontinePoolDirectoryService {
 
         .mergeMap((address: string) => {
           console.log(`Pool directory at: ${address}`);
-          this.__poolDirectory = this.PoolDirectory.at(address);
+          return Observable.from(this.PoolDirectory.at(address));
+        })
+
+        .mergeMap((instance: any) => {
+          this.__poolDirectory = instance;
 
           return Observable.of(true);
         })

@@ -1,4 +1,4 @@
-import { Component, OnInit, Input } from '@angular/core';
+import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { IPoolDetails } from 'services/tontinePool.service';
 

@@ -1,11 +1,11 @@
 <ul>
   <li *ngFor="let participantAddress of participants">
     {{participantAddress}}
-    <button *ngIf="isOwner && state === 'registration'">X</button>
+    <button *ngIf="isOwner && stateName === 'registration'">X</button>
   </li>
 </ul>
 
-<div *ngIf="isOwner && state === 'registration'">
+<div *ngIf="isOwner && stateName === 'registration'">
   <input
     type="text"
     [(ngModel)]="newParticipantAddress"

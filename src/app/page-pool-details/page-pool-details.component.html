@@ -96,6 +96,18 @@
     </tbody>
   </table>
 
+  <div *ngIf="isParticipant">
+    <input
+      type="text"
+      name="paymentAmountWei"
+      [(ngModel)]="paymentAmountWei"
+      placeholder="amount in wei" />
+
+    <button (click)="onClickMakePayment(paymentAmountWei)">
+      Make Payment
+    </button>
+  </div>
+
   <pre>{{poolDetails | json}}</pre>
 </div>
 

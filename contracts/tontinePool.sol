@@ -319,7 +319,7 @@ contract TontinePool {
      * when the last payment is being made.
      */
     function __setPaymentsMadeState() private {
-        if (paymentsMade[msg.sender] == 0) {
+        if (paymentsMade[msg.sender] == 0 && msg.value > 0) {
             numParticipantsPaid += 1;
         }
     }

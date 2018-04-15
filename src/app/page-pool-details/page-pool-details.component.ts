@@ -5,6 +5,7 @@ import { TontinePoolService, IPoolDetails } from 'services/tontinePool.service';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
 import { Web3Service } from 'services/web3.service';
 import * as _ from 'lodash';
+import * as BigNumber from 'bignumber.js';
 
 @Component({
   selector: 'app-page-pool-details',
@@ -18,6 +19,7 @@ export class PagePoolDetailsComponent implements OnInit {
   poolDetails: IPoolDetails = null;
   poolDetailsUpdateStream: ReplaySubject<IPoolDetails> = new ReplaySubject<IPoolDetails>(1);
   isOwner: boolean = false;
+  isParticipant: boolean = false;
   paymentsMade: [{
     shortenedParticipant: string,
     paymentMadeWei: string
@@ -69,6 +71,10 @@ export class PagePoolDetailsComponent implements OnInit {
 
         if (this.poolDetails.owner === account) {
           this.isOwner = true;
+        }
+
+        if (this.poolDetails.participantAddresses.indexOf(account) !== -1) {
+          this.isParticipant = true;
         }
         
         this.__loadingService.turnOff();
@@ -157,6 +163,19 @@ export class PagePoolDetailsComponent implements OnInit {
       .subscribe(() => {
         this.triggerPoolDetailsUpdate();
       });
+  }
+
+
+
+  onClickMakePayment(paymentAmountWei: string) {
+    return Observable.from(this.__poolService.makePayment(this.poolInstance, paymentAmountWei))
+      .subscribe(
+        () => {
+          this.triggerPoolDetailsUpdate();
+        },
+        (err: any) => {
+          console.error(err);
+        });
   }
 
 }

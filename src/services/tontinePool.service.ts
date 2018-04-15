@@ -12,6 +12,8 @@ const uniqueTokenAbi = require('../../build/contracts/UniqueToken.json');
 
 
 
+const NULL_ADDRESS = '0x0000000000000000000000000000000000000000';
+
 const poolStateMap = {
   '0': 'registration',
   '1': 'mintingTokens',
@@ -224,7 +226,7 @@ export class TontinePoolService {
     return Observable.from(poolInstance.erc721Master.call())
 
       .mergeMap((tokenAddress: string) => {
-        if (!tokenAddress) {
+        if (!tokenAddress || tokenAddress === NULL_ADDRESS) {
           return Observable.throw(new Error('NO_ERC_721_MASTER'));
         }
 
@@ -251,7 +253,11 @@ export class TontinePoolService {
 
 
   getPaymentsMade(poolInstance: any, participants: string[]): Observable<IPaymentsMade> {
-    return Observable.combineLatest(_.map(_.keys(participants), (participant) => {
+    if (participants.length === 0) {
+      return Observable.of({});
+    }
+
+    return Observable.combineLatest(_.map(participants, (participant) => {
         return Observable.from(poolInstance.paymentsMade.call(participant));
       }))
 
@@ -286,6 +292,14 @@ export class TontinePoolService {
 
   mintSubsetOfTokens(poolInstance: any) {
     return Observable.from(poolInstance.mintSubsetOfTokens());
+  }
+
+
+
+  makePayment(poolInstance: any, paymentAmountWei: string) {
+    return Observable.from(poolInstance.makePayment({
+      value: paymentAmountWei
+    }));
   }
 
 }
