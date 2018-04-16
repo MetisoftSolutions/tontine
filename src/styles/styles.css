@@ -4,8 +4,8 @@ h1, h2, h3, h4, p {
 }
 
 html {
-  height: 100vh;
-  width: 100vw;
+  height: 100%;
+  width: 100%;
 }
 
 body {
@@ -38,6 +38,10 @@ p {
   height: 100vh;
 }
 
+.outlet {
+  margin-left: 325px;
+}
+
 .router-root {
   flex: 1;
   height: inherit;
@@ -57,17 +61,22 @@ p {
   background: white;
   border: thin solid silver;
   margin-bottom: 32px;
+  min-width: 50vw;
 }
 
-.frame .frame-header {
-  border-bottom: thin solid lightblue;
-  padding: 16px;
-  padding-bottom: 8px;
-}
+  .frame .frame-header {
+    border-bottom: thin solid lightblue;
+    padding: 16px;
+    padding-bottom: 8px;
+  }
 
-.frame .frame-body {
-  padding: 16px;
-}
+    .frame .frame-header h1 {
+      font-size: 1.50rem;
+    }
+
+  .frame .frame-body {
+    padding: 16px;
+  }
 
 button {
   min-height: 42px;
@@ -77,6 +86,13 @@ button {
   border-radius: 4px;
   color: #000;
 }
+
+  button.x {
+    border-radius: 100%;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+  }
 
 button.no-style {
   border: none;
@@ -117,7 +133,7 @@ table tr:nth-child(even) {
 
 table th,
 table td {
-  padding: 3px;
+  padding: 6px;
 }
 
 .page {

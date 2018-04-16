@@ -1,44 +1,52 @@
 .root {
-    height: 100vh;
-    background: #202020;    
-    display: flex;
-    flex-direction: column;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: 300px;
+  background: #202020;    
+  display: flex;
+  flex-direction: column;
+  padding: 10px;
+  padding-top: 2vh;
+  padding-bottom: 2vh;
 }
 
 h1 {
-    color: #fafafa;
-    text-align: center;
+  color: #fafafa;
+  text-align: center;
+  font-size: 2.25rem;
 }
 
 nav {
-    margin-top: 32px;
-    flex: 1;
+  margin-top: 32px;
+  flex: 1;
 }
 
 a {
-    display: block;
-    height: 50px;
-    font-size: 20pt;
-    text-decoration: none;
-    color: #fafafa;
-    margin-left: 32px;
-    margin-right: 32px;
+  display: block;
+  height: 50px;
+  font-size: 20pt;
+  text-decoration: none;
+  color: #fafafa;
+  margin-left: 32px;
+  margin-right: 32px;
 }
 
 a.active {
-    color: lightblue;
+  color: lightblue;
 }
 
 a:hover {
-    color: lightblue;
+  color: lightblue;
 }
 .currency-balance {
-    color: #fafafa;
-    font-weight: bold;
-    height: 50px;
-    text-align: center;
+  color: #fafafa;
+  font-weight: bold;
+  height: 50px;
+  text-align: center;
 }
 
 .navbar-button {
-    color: #fafafa;
+  color: #fafafa;
 }

@@ -2,6 +2,11 @@
   <div class="widget">
     <h1>Switch Local Account</h1>
 
+    <p>
+      Please note that if you refresh the page, the account will switch back to whichever
+      one comes first in the list below.
+    </p>
+
     <ul>
       <li *ngFor="let account of accounts; let i = index">
         <button (click)="switchTo(account, i)" class="no-style">

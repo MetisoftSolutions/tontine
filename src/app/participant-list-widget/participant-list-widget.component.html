@@ -1,11 +1,12 @@
-<ul>
+<ul [ngClass]="{ 'no-bullets': isOwner }">
   <li *ngFor="let participantAddress of participants">
-    {{participantAddress}}
     <button
       *ngIf="isOwner && stateName === 'registration'"
+      class="x"
       (click)="onClickRemoveParticipant(participantAddress)">
       X
     </button>
+    {{participantAddress}}
   </li>
 </ul>
 

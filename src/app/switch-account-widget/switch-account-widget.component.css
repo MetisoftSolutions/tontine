@@ -8,4 +8,25 @@
   padding: 20px;
   border-radius: 5px;
   box-shadow: 2px 2px 10px 5px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+  .screen-cover .widget h1 {
+    flex: 1 1;
+  }
+
+  .screen-cover .widget p {
+    flex: 1 1;
+    margin: 2vh 2vw;
+    max-width: 500px;
+  }
+
+ul {
+  list-style-type: none;
+  padding-left: 0;
 }
