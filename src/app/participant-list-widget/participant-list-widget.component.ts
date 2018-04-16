@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, NgZone } from '@angular/core';
 import { Observable, ReplaySubject } from 'rxjs/Rx';
-import { IPoolDetails } from 'services/tontinePool.service';
+import { IPoolDetails, TontinePoolService } from 'services/tontinePool.service';
 
 @Component({
   selector: 'app-participant-list-widget',
@@ -21,7 +21,9 @@ export class ParticipantListWidgetComponent implements OnInit {
 
 
 
-  constructor() { }
+  constructor(
+    private __poolService: TontinePoolService
+  ) { }
 
 
 
@@ -38,7 +40,8 @@ export class ParticipantListWidgetComponent implements OnInit {
   onClickAddParticipant(newParticipantAddress: string) {
     this.isUpdating = true;
     this.errorMessage = '';
-    Observable.from(this.poolInstance.addParticipant(newParticipantAddress))
+
+    this.__poolService.addParticipant(this.poolInstance, newParticipantAddress)
       .subscribe(
         () => {
           this.triggerPoolDetailsUpdate();
@@ -53,7 +56,7 @@ export class ParticipantListWidgetComponent implements OnInit {
 
 
   onClickRemoveParticipant(participantAddress: string) {
-    Observable.from(this.poolInstance.removeParticipant(participantAddress))
+    this.__poolService.removeParticipant(this.poolInstance, participantAddress)
       .subscribe(
         () => {
           this.triggerPoolDetailsUpdate();

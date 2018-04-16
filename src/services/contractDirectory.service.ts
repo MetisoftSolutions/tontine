@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { Web3Service } from "services/web3.service";
 import { Observable, Observer, BehaviorSubject } from "rxjs/Rx";
 import { InitEventStreamService } from "./initEventStream.service";
+import { initializeContract } from "../util/contractInitializer";
 
 const contract = require('truffle-contract');
 const contractDirectory = require('../../build/contracts/TontineContractDirectory.json');
@@ -24,20 +25,10 @@ export class ContractDirectoryService {
 
 
     init(config: any): Observable<any> {
-      return this.__web3Service.getPrimaryAccount()
+      return initializeContract(this.__web3Service, this.ContractDirectory, config)
 
-        .flatMap((account: string) => {
-          let gas = config.gas,
-              defaults: any = {
-                from: account
-              };
-
-          if (gas) {
-            defaults.gas = gas;
-          }
-
-          this.ContractDirectory.setProvider(this.__web3Service.web3.currentProvider);
-          this.ContractDirectory.defaults(defaults);
+        .mergeMap((contractClass: any) => {
+          this.ContractDirectory = contractClass;
 
           if (config.contractDirectory) {
             return Observable.from(this.ContractDirectory.at(config.contractDirectory));
@@ -46,7 +37,7 @@ export class ContractDirectoryService {
           }
         })
 
-        .flatMap((instance: any) => {
+        .mergeMap((instance: any) => {
           this.__contractDirectory = instance;
           console.log(`Contract directory is at: ${instance.address}`);
           return Observable.of(true);

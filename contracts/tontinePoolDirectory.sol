@@ -28,10 +28,11 @@ contract TontinePoolDirectory {
     mapping(address => address[]) public participant2Pools;
 
     /**
-     * Maps (the participant of a pool) to a mapping of (a pool address) to (true).
+     * Maps (the participant of a pool) to a mapping of (a pool address) to (index of participants2Pools + 1).
      * Used when you want to verify that a given user is participating in a given pool.
+     * A value of 0 represents non existence.
      */
-    mapping(address => mapping(address => bool)) public participant2PoolsMap;
+    mapping(address => mapping(address => uint)) public participant2PoolsMap;
     
     
     
@@ -65,9 +66,31 @@ contract TontinePoolDirectory {
         TontinePool pool = TontinePool(poolAddress);
         require(pool.owner() == msg.sender);
 
-        if (!participant2PoolsMap[participant][poolAddress]) {
-            participant2Pools[participant].push(poolAddress);
-            participant2PoolsMap[participant][poolAddress] = true;
+        if (participant2PoolsMap[participant][poolAddress] == 0) {
+            uint newLength = participant2Pools[participant].push(poolAddress);
+            // newLength is index + 1. We want that, because we'll use 0 to represent no index.
+            participant2PoolsMap[participant][poolAddress] = newLength;
+        }
+    }
+
+
+
+    function removePoolForParticipant(address poolAddress, address participant) public {
+        TontinePool pool = TontinePool(poolAddress);
+        require(pool.owner() == msg.sender);
+
+        uint indexPlusOne = participant2PoolsMap[participant][poolAddress];
+        uint length = participant2Pools[participant].length;
+
+        if (indexPlusOne > 0) {
+            if (length > 1) {
+                participant2Pools[participant][indexPlusOne-1] = participant2Pools[participant][length - 1];
+                // update the map for the address that filled the gap
+                address replacementAddress = participant2Pools[participant][indexPlusOne-1];
+                participant2PoolsMap[participant][replacementAddress] = indexPlusOne;
+            }
+            participant2Pools[participant].length = length - 1;
+            participant2PoolsMap[participant][poolAddress] = 0;
         }
     }
     

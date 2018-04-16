@@ -4,6 +4,7 @@ import { Web3Service } from "./web3.service";
 import { Observable, BehaviorSubject } from "rxjs/Rx";
 import { ContractService } from "./contract.service";
 import { InitEventStreamService } from "./initEventStream.service";
+import { initializeContract } from "../util/contractInitializer";
 import * as _ from 'lodash';
 
 const contract = require('truffle-contract');
@@ -77,23 +78,19 @@ export class TontinePoolService {
 
 
   init(config: any): Observable<boolean> {
-    return this.__web3Service.getPrimaryAccount()
+    this.__web3Service.accountSwitchEventStream
+      .subscribe((account: string) => {
+        this.setUserAccount(account);
+      });
 
-      .flatMap((account: string): Observable<boolean> => {
-        let gas = config.gas,
-            defaults: any = {
-              from: account
-            };
+    return Observable.combineLatest([
+        initializeContract(this.__web3Service, this.TontinePool, config),
+        initializeContract(this.__web3Service, this.UniqueToken, config)
+      ])
 
-        if (gas) {
-          defaults.gas = gas;
-        }
-
-        this.TontinePool.setProvider(this.__web3Service.web3.currentProvider);
-        this.TontinePool.defaults(defaults);
-
-        this.UniqueToken.setProvider(this.__web3Service.web3.currentProvider);
-        this.UniqueToken.defaults(defaults);
+      .mergeMap((contractClasses: any[]): Observable<boolean> => {
+        this.TontinePool = contractClasses[0];
+        this.UniqueToken = contractClasses[1];
 
         return Observable.of(true);
       })
@@ -120,6 +117,12 @@ export class TontinePoolService {
           )
         );
       });
+  }
+
+
+
+  setUserAccount(account: string) {
+    this.TontinePool.defaults({from: account});
   }
 
 
@@ -330,6 +333,26 @@ export class TontinePoolService {
     return Observable.from(poolInstance.makePayment({
       value: paymentAmountWei
     }));
+  }
+
+
+
+  addParticipant(poolInstance: any, participant: string) {
+    return Observable.from(poolInstance.addParticipant(participant))
+
+      .mergeMap(() => {
+        return Observable.from(this.__poolDirectoryService.addPoolForParticipant(poolInstance.address, participant));
+      });
+  }
+
+
+
+  removeParticipant(poolInstance: any, participant: string) {
+    return Observable.from(poolInstance.removeParticipant(participant))
+
+      .mergeMap(() => {
+        return Observable.from(this.__poolDirectoryService.removePoolForParticipant(poolInstance.address, participant));
+      });
   }
 
 }

@@ -39,7 +39,8 @@ export class PoolListDaemon {
       });
 
     this.__web3Service.accountSwitchEventStream
-      .subscribe(() => {
+      .subscribe((account: string) => {
+        this.__poolDirectoryService.setAccount(account);
         this.__refresh();
       });
   }

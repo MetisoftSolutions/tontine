@@ -63,7 +63,7 @@ contract UniqueToken is ERC721 {
     
     function __approve(address to, uint256 tokenId) internal {
         tokenIndexToApproved[tokenId] = to;
-        Approval(tokenIndexToOwner[tokenId], tokenIndexToApproved[tokenId], tokenId);
+        emit Approval(tokenIndexToOwner[tokenId], tokenIndexToApproved[tokenId], tokenId);
     }
     
     
