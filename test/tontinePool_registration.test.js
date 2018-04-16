@@ -177,6 +177,10 @@ contract('TontinePool', function(accounts) {
       })
 
       .then(function() {
+        return pool.addParticipant(participantAccounts[1]);
+      })
+
+      .then(function() {
         return pool.closeRegistration();
       })
 
@@ -204,6 +208,10 @@ contract('TontinePool', function(accounts) {
       })
 
       .then(function() {
+        return pool.addParticipant(participantAccounts[1]);
+      })
+
+      .then(function() {
         return pool.closeRegistration();
       })
 
@@ -214,11 +222,16 @@ contract('TontinePool', function(accounts) {
       .then(function(state) {
         const PAYMENT_SUBMISSION = 2;
         assert.equal(state, PAYMENT_SUBMISSION, "should be in PAYMENT_SUBMISSION state");
-        return pool.addParticipant(participantAccounts[1]); // expect failure here
+
+        return new Promise(function(resolve, reject) {
+          pool.addParticipant(participantAccounts[2])
+            .then(() => { resolve(false); })
+            .catch(() => { resolve(true); }); // should throw
+        });
       })
 
-      .catch(function(err) {
-        assert.equal(err.name, 'StatusError');
+      .then((errorThrown) => {
+        assert.equal(errorThrown, true, "error should throw");
         done();
       });
   });
