@@ -135,13 +135,12 @@ contract TontinePool {
         indexToRemove -= 1;
         
         if (participants.length > 1) {
-          address lastParticipant = participants[participants.length - 1];
-          participants[indexToRemove] = lastParticipant;
+            address lastParticipant = participants[participants.length - 1];
+            participants[indexToRemove] = lastParticipant;
+            participantMap[lastParticipant] = indexToRemove + 1;
         }
         participants.length -= 1;
         
-        // update the map for both participants
-        participantMap[lastParticipant] = indexToRemove + 1;
         participantMap[participant] = 0;
     }
     

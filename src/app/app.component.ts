@@ -1,5 +1,4 @@
 import { Component, HostListener, NgZone, OnInit } from '@angular/core';
-import { canBeNumber } from '../util/validation';
 import { ContractDirectoryService } from 'services/contractDirectory.service';
 import { TontinePoolDirectoryService } from 'services/tontinePoolDirectory.service';
 import { Promise } from 'bluebird';

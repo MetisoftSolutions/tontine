@@ -1,5 +1,5 @@
 {
-  "name": "angular-truffle",
+  "name": "tontine-block",
   "version": "0.0.0",
   "license": "MIT",
   "scripts": {
@@ -10,7 +10,8 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "node-server": "export PATH=$PATH; npm install -g truffle @angular/cli; truffle compile; ng build; node server"
   },
   "private": true,
   "dependencies": {
@@ -23,9 +24,11 @@
     "@angular/platform-browser-dynamic": "^4.0.0",
     "@angular/router": "^4.0.0",
     "core-js": "^2.4.1",
+    "express": "^4.16.3",
     "rxjs": "^5.1.0",
-    "zone.js": "^0.8.4",
-    "web3": "^0.18.4"
+    "truffle": "^4.1.6",
+    "web3": "^0.18.4",
+    "zone.js": "^0.8.4"
   },
   "devDependencies": {
     "@angular/cli": "1.3.0",
