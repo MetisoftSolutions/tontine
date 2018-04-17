@@ -398,7 +398,7 @@ contract TontinePool {
     
     
     function __chooseWinner() private {
-        
+        // TODO implement random number oracle call here
     }
     
 }
