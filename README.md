@@ -14,6 +14,9 @@ If you have MetaMask ([MetaMask.io](https://metamask.io)) running as an extensio
 
 You can also run `npm run compile-start` to automatically run all 3 steps.
 
+## Notes on the Solidity contracts
+The contracts are stored in the `contracts/` directory. `tontinePool.sol`, `tontinePoolDirectory.sol`, `tontineContractDirectory.sol` are the major unique pieces of this project. The other contracts are simply copied from existing open-source libraries or adapted from existing open-source code.
+
 ## Code scaffolding
 
 Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive/pipe/service/class/module`.
