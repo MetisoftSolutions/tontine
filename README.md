@@ -1,22 +1,18 @@
-# Angular-Truffle
-
-<p align="center">		
-  <img src="https://github.com/Nikhil22/angular2-truffle-starter-dapp/blob/master/src/assets/logo.png">		
- </p>		
+# TontineBlock
  	
- ------------------------		
-You're going to need a working copy of [angular-cli](https://github.com/angular/angular-cli) (aka. `ng`) installed in your environment (`npm install -g @angular/cli`). And if you're new, install [ganache-cli](https://github.com/trufflesuite/ganache-cli) to run a local blockchain RPC server(`npm install -g ganache-cli`). After that, simply run `ganache-cli` in a new tab. 
+ ------------------------
 
-Both of these cli-tools are required before moving forward, and be sure you're connected to an Ethereum client before running the commands below. A great browser based tool is [MetaMask.io](https://metamask.io) and will suit your needs for getting this demo and working quickly.  Be sure to SWITCH the Metamask network (in the upper left hand corner of the pop-up) to Localhost 8545. Otherwise you'll log an web-browser error when you navigate to app in a web browser.
+## Installation
+1. Grab [angular-cli](https://github.com/angular/angular-cli) (aka. `ng`) by running `npm install -g @angular/cli`.
+2. Grab [ganache-cli](https://github.com/trufflesuite/ganache-cli) to run a local blockchain RPC server (`npm install -g ganache-cli`). After that, simply run `ganache-cli` in a new tab. (Running the UI version of Ganache will also work.)
+3. Ganache should be running at `http://127.0.0.1:7545` or `http://localhost:7545`. If it's not, this can be changed in the Ganache settings.
 
-And then in the original tab, run:
+If you have MetaMask ([MetaMask.io](https://metamask.io)) running as an extension in your browser, disable it if you wish to use the local blockchain provided by Ganache (recommended for testing, as it executes way faster than testnets). If you want to use a testnet, MetaMask will work fine.
 
-4. `truffle compile` to compile your contracts
-5. `truffle migrate` to deploy those contracts to the network
-6. `ng serve`. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
-7. Make sure there are no errors in browser console
+4. Use `truffle compile` to compile your contracts.
+5. Run `ng serve`. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
-You can also run `npm run compile-start` to automatically run all 3 steps
+You can also run `npm run compile-start` to automatically run all 3 steps.
 
 ## Code scaffolding
 
@@ -28,13 +24,7 @@ Run `ng build` to build the project. The build artifacts will be stored in the `
 
 ## Running unit tests
 
-1. Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-2. Run `truffle test` to run tests associated with your solidity smart contracts. The test folder for this can be found in the `test` directory at the root level of this project
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-Before running the tests make sure you are serving the app via `ng serve`.
+Run `truffle test` to run tests associated with the Solidity smart contracts. The test folder for this can be found in the `test` directory at the root level of this project. Note that this requires Ganache to be running.
 
 ## Technologies & Languages Used
 1. Angular4 (Typescript/Javascript)
